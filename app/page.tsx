@@ -8,6 +8,26 @@ import {
   Play, Video, Palette, Clapperboard, X, MessageCircle, Sparkles
 } from "lucide-react";
 
+type SiteSettings = {
+  brand_name: string; logo_url: string | null; hero_kicker: string; hero_title_line1: string; hero_title_line2: string; hero_description: string;
+  about_kicker: string; about_title_line1: string; about_title_line2: string; about_paragraph1: string; about_paragraph2: string;
+  contact_kicker: string; contact_title_line1: string; contact_title_line2: string; contact_description: string;
+  instagram_url: string; whatsapp_number: string; contact_email: string;
+  service_intro: string; service1_title: string; service1_description: string; service2_title: string; service2_description: string; service3_title: string; service3_description: string;
+};
+const defaultSettings: SiteSettings = {
+  brand_name: "Raak Editz", logo_url: null, hero_kicker: "INDEPENDENT CREATIVE STUDIO", hero_title_line1: "Visuals that", hero_title_line2: "make an impact.",
+  hero_description: "I turn ideas into scroll-stopping videos and memorable designs. Thoughtful visuals, sharp edits, and creative work built to connect.",
+  about_kicker: "A LITTLE ABOUT ME", about_title_line1: "Good design gets noticed.", about_title_line2: "Great stories stay.",
+  about_paragraph1: "Raak Editz is a creative space for video editing and graphic design. I enjoy shaping raw ideas into polished visual stories — whether that’s a fast-paced reel, a campaign poster or a complete brand look.",
+  about_paragraph2: "This portfolio is a growing collection of selected work. Each project is an opportunity to experiment, solve a visual problem and make something people remember.",
+  contact_kicker: "AVAILABLE FOR SELECT PROJECTS", contact_title_line1: "Have an idea?", contact_title_line2: "Let’s make it real.", contact_description: "Tell me what you’re working on. Let’s create something worth looking at.",
+  instagram_url: "https://www.instagram.com/raak_editz/", whatsapp_number: "", contact_email: "", service_intro: "From the first rough idea to the final export, I focus on making every frame and every detail count.",
+  service1_title: "Video editing", service1_description: "Reels, promotional videos, cinematic edits, short-form content and motion-led storytelling.",
+  service2_title: "Graphic design", service2_description: "Social media creatives, posters, thumbnails, campaign artwork and advertising layouts.",
+  service3_title: "Branding & creative", service3_description: "Logo concepts, visual direction and consistent design assets for growing brands."
+};
+
 type Project = {
   title: string;
   category: "Video Editing" | "Graphic Design" | "Branding";
@@ -35,7 +55,9 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [liveProjects, setLiveProjects] = useState<Project[] | null>(null);
+  const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   useEffect(() => {
+    supabase.from("site_settings").select("*").eq("id", 1).maybeSingle().then(({ data }) => { if (data) setSettings({ ...defaultSettings, ...data }); });
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
     supabase.from("projects").select("*").eq("published", true).order("created_at", { ascending: false })
       .then(({ data }) => {
@@ -57,8 +79,7 @@ export default function Home() {
       <div className="noise" aria-hidden="true" />
       <header className="site-header">
         <a className="brand" href="#home" onClick={closeMenu} aria-label="Raak Editz home">
-          <span className="brand-mark">R<span>.</span></span>
-          <span className="brand-name">RAAK<span>EDITZ</span></span>
+          {settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt={settings.brand_name} /> : <><span className="brand-mark">R<span>.</span></span><span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span></>}
         </a>
         <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation">
           {menuOpen ? <X size={21} /> : <Menu size={21} />}
@@ -74,13 +95,13 @@ export default function Home() {
       <section className="hero section-wrap" id="home">
         <div className="hero-copy">
           <motion.div className="eyebrow" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}>
-            <span className="status-dot" /> INDEPENDENT CREATIVE STUDIO
+            <span className="status-dot" /> {settings.hero_kicker}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75, delay: .1 }}>
-            Visuals that<br />make an <span>impact.</span>
+            {settings.hero_title_line1}<br /><span>{settings.hero_title_line2}</span>
           </motion.h1>
           <motion.p className="hero-description" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .35, duration: .7 }}>
-            I turn ideas into scroll-stopping videos and memorable designs. Thoughtful visuals, sharp edits, and creative work built to connect.
+            {settings.hero_description}
           </motion.p>
           <motion.div className="hero-actions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .45 }}>
             <a className="button button-primary" href="#work">Explore my work <ArrowDownRight size={17} /></a>
@@ -142,44 +163,44 @@ export default function Home() {
         <div className="section-wrap">
           <div className="section-heading">
             <div><div className="eyebrow">WHAT I BRING TO THE TABLE</div><h2>Creative work,<br /><span>made clear.</span></h2></div>
-            <p>From the first rough idea to the final export, I focus on making every frame and every detail count.</p>
+            <p>{settings.service_intro}</p>
           </div>
           <div className="service-list">
-            <div className="service-row"><div className="service-icon"><Video /></div><div><span>01 / MOTION</span><h3>Video editing</h3><p>Reels, promotional videos, cinematic edits, short-form content and motion-led storytelling.</p></div><ArrowUpRight className="service-arrow" /></div>
-            <div className="service-row"><div className="service-icon"><Palette /></div><div><span>02 / VISUALS</span><h3>Graphic design</h3><p>Social media creatives, posters, thumbnails, campaign artwork and advertising layouts.</p></div><ArrowUpRight className="service-arrow" /></div>
-            <div className="service-row"><div className="service-icon"><Clapperboard /></div><div><span>03 / IDENTITY</span><h3>Branding & creative</h3><p>Logo concepts, visual direction and consistent design assets for growing brands.</p></div><ArrowUpRight className="service-arrow" /></div>
+            <div className="service-row"><div className="service-icon"><Video /></div><div><span>01 / MOTION</span><h3>{settings.service1_title}</h3><p>{settings.service1_description}</p></div><ArrowUpRight className="service-arrow" /></div>
+            <div className="service-row"><div className="service-icon"><Palette /></div><div><span>02 / VISUALS</span><h3>{settings.service2_title}</h3><p>{settings.service2_description}</p></div><ArrowUpRight className="service-arrow" /></div>
+            <div className="service-row"><div className="service-icon"><Clapperboard /></div><div><span>03 / IDENTITY</span><h3>{settings.service3_title}</h3><p>{settings.service3_description}</p></div><ArrowUpRight className="service-arrow" /></div>
           </div>
         </div>
       </section>
 
       <section className="about-section section-wrap" id="about">
-        <div className="about-stamp"><span>RAAK</span><strong>EDITZ</strong><i>CREATIVE STUDIO · 2026</i></div>
+        <div className="about-stamp"><span>{settings.brand_name.split(" ")[0]}</span><strong>{settings.brand_name.split(" ").slice(1).join(" ") || "STUDIO"}</strong><i>CREATIVE STUDIO · 2026</i></div>
         <div className="about-copy">
-          <div className="eyebrow">A LITTLE ABOUT ME</div>
-          <h2>Good design gets noticed.<br /><span>Great stories stay.</span></h2>
-          <p>Raak Editz is a creative space for video editing and graphic design. I enjoy shaping raw ideas into polished visual stories — whether that’s a fast-paced reel, a campaign poster or a complete brand look.</p>
-          <p>This portfolio is a growing collection of selected work. Each project is an opportunity to experiment, solve a visual problem and make something people remember.</p>
+          <div className="eyebrow">{settings.about_kicker}</div>
+          <h2>{settings.about_title_line1}<br /><span>{settings.about_title_line2}</span></h2>
+          <p>{settings.about_paragraph1}</p>
+          <p>{settings.about_paragraph2}</p>
           <div className="skill-tags"><span>Photoshop</span><span>Illustrator</span><span>Premiere Pro</span><span>After Effects</span><span>Lightroom</span><span>Creative Direction</span></div>
         </div>
       </section>
 
       <section className="contact-section" id="contact">
         <div className="section-wrap contact-inner">
-          <div className="eyebrow"><span className="status-dot" /> AVAILABLE FOR SELECT PROJECTS</div>
-          <h2>Have an idea?<br /><span>Let’s make it real.</span></h2>
-          <p>Tell me what you’re working on. Let’s create something worth looking at.</p>
-          <a className="button button-primary contact-cta" href="mailto:hello@raakeditz.com?subject=Project%20enquiry">Start a conversation <ArrowUpRight size={18} /></a>
+          <div className="eyebrow"><span className="status-dot" /> {settings.contact_kicker}</div>
+          <h2>{settings.contact_title_line1}<br /><span>{settings.contact_title_line2}</span></h2>
+          <p>{settings.contact_description}</p>
+          <a className="button button-primary contact-cta" href={settings.contact_email ? `mailto:${settings.contact_email}?subject=Project%20enquiry` : "#contact"}>Start a conversation <ArrowUpRight size={18} /></a>
           <div className="contact-links">
-            <a href="https://www.instagram.com/raak_editz/" target="_blank" rel="noreferrer"><Instagram size={17} /> Instagram <ArrowUpRight size={14} /></a>
-            <a href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noreferrer"><MessageCircle size={17} /> WhatsApp <ArrowUpRight size={14} /></a>
-            <a href="mailto:hello@raakeditz.com"><Mail size={17} /> Email <ArrowUpRight size={14} /></a>
+            <a href={settings.instagram_url || "#contact"} target="_blank" rel="noreferrer"><Instagram size={17} /> Instagram <ArrowUpRight size={14} /></a>
+            <a href={settings.whatsapp_number ? `https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, "")}` : "#contact"} target="_blank" rel="noreferrer"><MessageCircle size={17} /> WhatsApp <ArrowUpRight size={14} /></a>
+            <a href={settings.contact_email ? `mailto:${settings.contact_email}` : "#contact"}><Mail size={17} /> Email <ArrowUpRight size={14} /></a>
           </div>
         </div>
       </section>
 
       <footer className="footer section-wrap">
-        <a className="brand" href="#home"><span className="brand-mark">R<span>.</span></span><span className="brand-name">RAAK<span>EDITZ</span></span></a>
-        <span>© 2026 RAAK EDITZ. MADE WITH INTENTION.</span>
+        <a className="brand" href="#home">{settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt={settings.brand_name} /> : <><span className="brand-mark">R<span>.</span></span><span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span></>}</a>
+        <span>© 2026 {settings.brand_name.toUpperCase()}. MADE WITH INTENTION.</span>
         <a href="#home" className="back-top">BACK TO TOP ↑</a>
       </footer>
 

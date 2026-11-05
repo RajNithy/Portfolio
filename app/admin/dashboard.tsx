@@ -3,6 +3,26 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+type BrandSettings = {
+  brand_name: string; logo_url: string | null; hero_kicker: string; hero_title_line1: string; hero_title_line2: string; hero_description: string;
+  about_kicker: string; about_title_line1: string; about_title_line2: string; about_paragraph1: string; about_paragraph2: string;
+  contact_kicker: string; contact_title_line1: string; contact_title_line2: string; contact_description: string;
+  instagram_url: string; whatsapp_number: string; contact_email: string;
+  service_intro: string; service1_title: string; service1_description: string; service2_title: string; service2_description: string; service3_title: string; service3_description: string;
+};
+const defaultBrand: BrandSettings = {
+  brand_name: "Raak Editz", logo_url: null, hero_kicker: "INDEPENDENT CREATIVE STUDIO", hero_title_line1: "Visuals that", hero_title_line2: "make an impact.",
+  hero_description: "I turn ideas into scroll-stopping videos and memorable designs. Thoughtful visuals, sharp edits, and creative work built to connect.",
+  about_kicker: "A LITTLE ABOUT ME", about_title_line1: "Good design gets noticed.", about_title_line2: "Great stories stay.",
+  about_paragraph1: "Raak Editz is a creative space for video editing and graphic design. I enjoy shaping raw ideas into polished visual stories — whether that’s a fast-paced reel, a campaign poster or a complete brand look.",
+  about_paragraph2: "This portfolio is a growing collection of selected work. Each project is an opportunity to experiment, solve a visual problem and make something people remember.",
+  contact_kicker: "AVAILABLE FOR SELECT PROJECTS", contact_title_line1: "Have an idea?", contact_title_line2: "Let’s make it real.", contact_description: "Tell me what you’re working on. Let’s create something worth looking at.",
+  instagram_url: "https://www.instagram.com/raak_editz/", whatsapp_number: "", contact_email: "", service_intro: "From the first rough idea to the final export, I focus on making every frame and every detail count.",
+  service1_title: "Video editing", service1_description: "Reels, promotional videos, cinematic edits, short-form content and motion-led storytelling.",
+  service2_title: "Graphic design", service2_description: "Social media creatives, posters, thumbnails, campaign artwork and advertising layouts.",
+  service3_title: "Branding & creative", service3_description: "Logo concepts, visual direction and consistent design assets for growing brands."
+};
+
 type Project = {
   id: string; title: string; category: string; project_type: string;
   description: string; image_url: string | null; video_url: string | null;
@@ -21,12 +41,35 @@ export function AdminDashboard() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("All");
+  const [brand, setBrand] = useState<BrandSettings>(defaultBrand);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [brandBusy, setBrandBusy] = useState(false);
+  const [brandMessage, setBrandMessage] = useState("");
 
+  async function loadBrand() {
+    const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
+    if (error) { setBrandMessage(`Brand settings: ${error.message}. Run the updated SQL setup in Supabase.`); return; }
+    if (data) setBrand({ ...defaultBrand, ...data });
+  }
   async function load() {
     const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
     if (error) setMessage(error.message); else setProjects(data || []);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); loadBrand(); }, []);
+
+  async function saveBrand(e: React.FormEvent) {
+    e.preventDefault(); setBrandBusy(true); setBrandMessage("");
+    try {
+      let logo_url = brand.logo_url;
+      if (logoFile) logo_url = await uploadFile(logoFile, "poster");
+      const payload = { ...brand, logo_url, id: 1, updated_at: new Date().toISOString() };
+      const { error } = await supabase.from("site_settings").upsert(payload, { onConflict: "id" });
+      if (error) throw error;
+      setBrand({ ...brand, logo_url }); setLogoFile(null); setBrandMessage("Website branding saved. Refresh your public website to see the changes.");
+    } catch (err: any) { setBrandMessage(err.message || "Could not save website branding."); }
+    finally { setBrandBusy(false); }
+  }
+  function updateBrand<K extends keyof BrandSettings>(key: K, value: BrandSettings[K]) { setBrand(prev => ({ ...prev, [key]: value })); }
 
   function reset() { setForm(blank); setImage(null); setVideo(null); setEditing(null); }
 
@@ -90,6 +133,50 @@ export function AdminDashboard() {
       </header>
       <div className="dashboard-content">
         <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Upload your poster or video, then publish it to your website.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
+
+        <section className="admin-panel">
+          <div className="admin-panel-heading"><div><p className="admin-kicker">WEBSITE CONTENT</p><h2>Brand & text settings</h2></div></div>
+          <form className="project-form" onSubmit={saveBrand}>
+            <div className="admin-form-grid">
+              <label>Website / brand name<input value={brand.brand_name} onChange={e=>updateBrand("brand_name",e.target.value)} required /></label>
+              <label className="upload-box"><span className="upload-symbol">＋</span><strong>{logoFile ? logoFile.name : "Upload / replace logo"}</strong><small>PNG, JPG, WebP · transparent PNG recommended</small><input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>setLogoFile(e.target.files?.[0] || null)}/></label>
+            </div>
+            {brand.logo_url && <div className="brand-logo-preview"><img src={brand.logo_url} alt="Current website logo"/><button type="button" className="admin-secondary" onClick={()=>{updateBrand("logo_url",null);setLogoFile(null)}}>Remove logo</button></div>}
+            <div className="admin-form-grid">
+              <label>Hero small heading<input value={brand.hero_kicker} onChange={e=>updateBrand("hero_kicker",e.target.value)} /></label>
+              <label>Main headline – first line<input value={brand.hero_title_line1} onChange={e=>updateBrand("hero_title_line1",e.target.value)} /></label>
+              <label>Main headline – second line<input value={brand.hero_title_line2} onChange={e=>updateBrand("hero_title_line2",e.target.value)} /></label>
+              <label>Hero introduction<textarea rows={3} value={brand.hero_description} onChange={e=>updateBrand("hero_description",e.target.value)} /></label>
+            </div>
+            <div className="admin-form-grid">
+              <label>About small heading<input value={brand.about_kicker} onChange={e=>updateBrand("about_kicker",e.target.value)} /></label>
+              <label>About headline – first line<input value={brand.about_title_line1} onChange={e=>updateBrand("about_title_line1",e.target.value)} /></label>
+              <label>About headline – second line<input value={brand.about_title_line2} onChange={e=>updateBrand("about_title_line2",e.target.value)} /></label>
+              <label>About paragraph 1<textarea rows={3} value={brand.about_paragraph1} onChange={e=>updateBrand("about_paragraph1",e.target.value)} /></label>
+              <label>About paragraph 2<textarea rows={3} value={brand.about_paragraph2} onChange={e=>updateBrand("about_paragraph2",e.target.value)} /></label>
+            </div>
+            <div className="admin-form-grid">
+              <label>Services introduction<textarea rows={3} value={brand.service_intro} onChange={e=>updateBrand("service_intro",e.target.value)} /></label>
+              <label>Service 1 title<input value={brand.service1_title} onChange={e=>updateBrand("service1_title",e.target.value)} /></label>
+              <label>Service 1 description<textarea rows={2} value={brand.service1_description} onChange={e=>updateBrand("service1_description",e.target.value)} /></label>
+              <label>Service 2 title<input value={brand.service2_title} onChange={e=>updateBrand("service2_title",e.target.value)} /></label>
+              <label>Service 2 description<textarea rows={2} value={brand.service2_description} onChange={e=>updateBrand("service2_description",e.target.value)} /></label>
+              <label>Service 3 title<input value={brand.service3_title} onChange={e=>updateBrand("service3_title",e.target.value)} /></label>
+              <label>Service 3 description<textarea rows={2} value={brand.service3_description} onChange={e=>updateBrand("service3_description",e.target.value)} /></label>
+            </div>
+            <div className="admin-form-grid">
+              <label>Contact small heading<input value={brand.contact_kicker} onChange={e=>updateBrand("contact_kicker",e.target.value)} /></label>
+              <label>Contact headline – first line<input value={brand.contact_title_line1} onChange={e=>updateBrand("contact_title_line1",e.target.value)} /></label>
+              <label>Contact headline – second line<input value={brand.contact_title_line2} onChange={e=>updateBrand("contact_title_line2",e.target.value)} /></label>
+              <label>Contact introduction<textarea rows={2} value={brand.contact_description} onChange={e=>updateBrand("contact_description",e.target.value)} /></label>
+              <label>Instagram URL<input value={brand.instagram_url} onChange={e=>updateBrand("instagram_url",e.target.value)} placeholder="https://instagram.com/yourpage" /></label>
+              <label>WhatsApp number<input value={brand.whatsapp_number} onChange={e=>updateBrand("whatsapp_number",e.target.value)} placeholder="Country code + number, digits only" /></label>
+              <label>Contact email<input type="email" value={brand.contact_email} onChange={e=>updateBrand("contact_email",e.target.value)} placeholder="you@example.com" /></label>
+            </div>
+            <button className="admin-primary" disabled={brandBusy}>{brandBusy ? "Saving website settings…" : "Save website branding →"}</button>
+          </form>
+          {brandMessage && <p className="admin-message">{brandMessage}</p>}
+        </section>
 
         <section className="admin-panel">
           <div className="admin-panel-heading"><div><p className="admin-kicker">{editing ? "EDIT PROJECT" : "NEW PROJECT"}</p><h2>{editing ? "Update your work" : "Add to your portfolio"}</h2></div>{editing && <button type="button" className="admin-secondary" onClick={reset}>Cancel edit</button>}</div>
