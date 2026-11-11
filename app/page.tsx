@@ -142,11 +142,16 @@ export default function Home() {
           <div className="art-glow" />
           <div className="art-frame">
             <div className="art-topline"><span>REEL / 2026</span><span>01—06</span></div>
-            <div className="art-center">
-              <div className="orbit orbit-one" /><div className="orbit orbit-two" />
-              <div className="art-core"><span>R</span></div>
-              <div className="art-label label-top">CREATE</div>
-              <div className="art-label label-bottom">WITHOUT LIMITS</div>
+            <div className="art-center art-center-portrait">
+              <img
+                className="hero-portrait"
+                src="/hero-portrait.webp"
+                alt="Raak Editz creator portrait"
+                fetchPriority="high"
+              />
+              <div className="hero-portrait-shade" />
+              <div className="art-label label-top">RAAK EDITZ</div>
+              <div className="art-label label-bottom">VIDEO × DESIGN</div>
             </div>
             <div className="art-bottomline"><span>DESIGN × MOTION</span><span className="sound-bars"><i /><i /><i /><i /><i /><i /><i /></span></div>
           </div>
