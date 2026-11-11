@@ -98,3 +98,10 @@ Open http://localhost:3000.
 The admin dashboard now includes a **Brand & text settings** section for the logo, brand name, hero headline and introduction, About copy, service descriptions, contact headline, Instagram URL, WhatsApp number, and email address.
 
 If you already deployed an earlier version, run the updated `supabase-setup.sql` again in **Supabase → SQL Editor**. It adds the `site_settings` table and policies without deleting your existing portfolio projects. Then upload the updated project files to the same GitHub repository (keep the `app`, `lib`, and root configuration files in their existing locations) and wait for Vercel to redeploy. Open `/admin`, sign in, and use **Brand & text settings**. Logo files are stored in the existing public `portfolio` Storage bucket and must be within the configured 50 MB file limit.
+
+
+## Cinematic gallery layout update
+
+The public portfolio now uses a burgundy cinematic gallery with vertical 9:16 project cards. Uploaded videos autoplay muted and loop while visible on screen, pause when scrolled away, and open in a larger player with controls when selected.
+
+In the admin project form, use **Gallery section heading** to group projects under a shared section title. For example, enter `PROMOTION REELS VIDEO EDITING` for every project that belongs in that gallery section. Projects with the same category and section heading appear together. Upload a portrait thumbnail/poster for a better initial preview; it is used as the video's poster frame.
