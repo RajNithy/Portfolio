@@ -119,3 +119,41 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
 .admin-current-media small{display:block;color:#91a7bb;font-size:12px;line-height:1.6}
 .admin-current-media a{display:inline-block;margin-top:5px;color:#42bdff;font-size:13px;text-decoration:none}
 .admin-current-media a:hover{text-decoration:underline}
+
+
+/* Poster Design: square previews with the complete artwork visible */
+.gallery-card.poster-card .gallery-media {
+  aspect-ratio: 1 / 1;
+  background: #f4f4f4;
+}
+.gallery-card.poster-card .gallery-image {
+  object-fit: contain;
+  background: #f4f4f4;
+}
+.gallery-card.poster-card:hover .gallery-image {
+  transform: scale(1.025);
+}
+.gallery-card.poster-card .gallery-media:after {
+  display: none;
+}
+.poster-project-modal {
+  width: min(620px, 94vw);
+}
+.poster-project-modal .modal-art {
+  width: min(100%, 560px);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  margin: 0 auto;
+  background: #f4f4f4;
+}
+.poster-project-modal .project-image {
+  object-fit: contain;
+  background: #f4f4f4;
+}
+@media (max-width: 650px) {
+  .poster-project-modal .modal-art {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+}

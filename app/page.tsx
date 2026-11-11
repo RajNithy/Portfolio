@@ -177,7 +177,7 @@ export default function Home() {
               </motion.div>
               <div className="gallery-grid">
                 {group.items.map((project, index) => (
-                  <motion.button key={`${project.number}-${project.title}`} className="gallery-card" onClick={() => setSelected(project)} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ duration: .45, delay: Math.min(index * .06, .24) }}>
+                  <motion.button key={`${project.number}-${project.title}`} className={`gallery-card ${project.category === "Poster Design" ? "poster-card" : ""}`} onClick={() => setSelected(project)} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ duration: .45, delay: Math.min(index * .06, .24) }}>
                     <div className="gallery-media">
                       {project.video_url ? <AutoPreview src={project.video_url} poster={project.image_url} title={project.title} /> : project.image_url ? <img className="gallery-image" src={project.image_url} alt={project.title} loading="lazy" /> : <div className={`gallery-placeholder ${project.visual}`}><span>RAAK EDITZ</span></div>}
                       <span className="gallery-play"><Play size={15} fill="currentColor" /></span>
@@ -249,7 +249,7 @@ export default function Home() {
               <div className="fullscreen-video-caption"><span>{selected.category} / PROJECT {selected.number}</span><strong>{selected.title}</strong></div>
             </motion.div>
           ) : (
-            <motion.div className="project-modal" initial={{ opacity: 0, y: 25, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15 }} onClick={e => e.stopPropagation()}>
+            <motion.div className={`project-modal ${selected.category === "Poster Design" ? "poster-project-modal" : ""}`} initial={{ opacity: 0, y: 25, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15 }} onClick={e => e.stopPropagation()}>
               <button className="modal-close" onClick={() => setSelected(null)} aria-label="Close project details"><X /></button>
               <div className={`modal-art project-visual ${selected.visual}`}>{selected.image_url ? <img className="project-image" src={selected.image_url} alt={selected.title} /> : <><div className="visual-title">{selected.title}</div><div className="visual-type">{selected.type}</div></>}</div>
               <div className="modal-copy"><span>{selected.category} / PROJECT {selected.number}</span><h3>{selected.title}</h3><p>{selected.description}</p></div>
