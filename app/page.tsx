@@ -232,12 +232,22 @@ export default function Home() {
       </footer>
 
       <AnimatePresence>
-        {selected && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelected(null)}>
-          <motion.div className="project-modal" initial={{ opacity: 0, y: 25, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15 }} onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelected(null)} aria-label="Close project details"><X /></button>
-            <div className={`modal-art project-visual ${selected.visual}`}>{selected.image_url ? <img className="project-image" src={selected.image_url} alt={selected.title} /> : null}{selected.video_url ? <video src={selected.video_url} controls autoPlay muted playsInline preload="auto" className="project-video" /> : <><div className="visual-title">{selected.title}</div><div className="visual-type">{selected.type}</div></>}</div>
-            <div className="modal-copy"><span>{selected.category} / PROJECT {selected.number}</span><h3>{selected.title}</h3><p>{selected.description}</p>{selected.video_url && <a className="text-link" href={selected.video_url} target="_blank" rel="noreferrer">Open video ↗</a>}</div>
-          </motion.div>
+        {selected && <motion.div className={`modal-backdrop ${selected.video_url ? "video-backdrop" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelected(null)}>
+          {selected.video_url ? (
+            <motion.div className="fullscreen-video-modal" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: .98 }} transition={{ duration: .22 }} onClick={e => e.stopPropagation()}>
+              <button className="fullscreen-video-close" onClick={() => setSelected(null)} aria-label="Close video"><X /></button>
+              <div className="fullscreen-video-frame">
+                <video key={selected.video_url} src={selected.video_url} controls autoPlay playsInline preload="auto" className="fullscreen-project-video" />
+              </div>
+              <div className="fullscreen-video-caption"><span>{selected.category} / PROJECT {selected.number}</span><strong>{selected.title}</strong></div>
+            </motion.div>
+          ) : (
+            <motion.div className="project-modal" initial={{ opacity: 0, y: 25, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15 }} onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setSelected(null)} aria-label="Close project details"><X /></button>
+              <div className={`modal-art project-visual ${selected.visual}`}>{selected.image_url ? <img className="project-image" src={selected.image_url} alt={selected.title} /> : <><div className="visual-title">{selected.title}</div><div className="visual-type">{selected.type}</div></>}</div>
+              <div className="modal-copy"><span>{selected.category} / PROJECT {selected.number}</span><h3>{selected.title}</h3><p>{selected.description}</p></div>
+            </motion.div>
+          )}
         </motion.div>}
       </AnimatePresence>
     </main>
