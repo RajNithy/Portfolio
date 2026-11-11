@@ -30,7 +30,7 @@ const defaultSettings: SiteSettings = {
 
 type Project = {
   title: string;
-  category: "Video Editing" | "Poster Design";
+  category: "Video Editing" | "Poster Design" | "AI Generated Ads";
   type: string;
   number: string;
   description: string;
@@ -76,10 +76,10 @@ export default function Home() {
   useEffect(() => {
     supabase.from("site_settings").select("*").eq("id", 1).maybeSingle().then(({ data }) => { if (data) setSettings({ ...defaultSettings, ...data }); });
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
-    supabase.from("projects").select("*").eq("published", true).order("created_at", { ascending: false })
+    supabase.from("projects").select("*").eq("published", true).order("sort_order", { ascending: true }).order("created_at", { ascending: false })
       .then(({ data }) => {
         if (data) setLiveProjects(data.map((p: any, i: number) => ({
-          title: p.title, category: p.video_url ? "Video Editing" : "Poster Design", type: p.video_url ? "VIDEO EDITING" : "POSTER DESIGN",
+          title: p.title, category: p.category === "AI Generated Ads" ? "AI Generated Ads" : (p.category === "Video Editing" ? "Video Editing" : (p.video_url ? "Video Editing" : "Poster Design")), type: p.category === "AI Generated Ads" ? "AI GENERATED ADS" : (p.category === "Video Editing" || p.video_url ? "VIDEO EDITING" : "POSTER DESIGN"),
           number: String(i + 1).padStart(2, "0"), description: p.description || "",
           visual: ["visual-one","visual-two","visual-three","visual-four","visual-five","visual-six"][i % 6],
           image_url: p.image_url, video_url: p.video_url
@@ -88,12 +88,15 @@ export default function Home() {
   }, []);
   const currentProjects = liveProjects ?? projects;
   const groupedProjects = useMemo(() => {
-    const videoProjects = currentProjects.filter((project) => Boolean(project.video_url));
-    const posterProjects = currentProjects.filter((project) => !project.video_url && Boolean(project.image_url));
-    return [
-      { key: "video-editing", title: "VIDEO EDITING", category: "Video Editing" as const, items: videoProjects },
-      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design" as const, items: posterProjects }
-    ].filter((group) => group.items.length > 0);
+    const categories = [
+      { key: "video-editing", title: "VIDEO EDITING", category: "Video Editing" as const },
+      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design" as const },
+      { key: "ai-generated-ads", title: "AI GENERATED ADS", category: "AI Generated Ads" as const }
+    ];
+    return categories.map((group) => ({
+      ...group,
+      items: currentProjects.filter((project) => project.category === group.category)
+    })).filter((group) => group.items.length > 0);
   }, [currentProjects]);
 
   const closeMenu = () => setMenuOpen(false);
