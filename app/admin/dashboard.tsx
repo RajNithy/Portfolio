@@ -26,7 +26,7 @@ const defaultBrand: BrandSettings = {
 type Project = {
   id: string; title: string; category: string; project_type: string;
   description: string; image_url: string | null; video_url: string | null;
-  published: boolean; created_at: string;
+  published: boolean; created_at: string; sort_order?: number;
 };
 
 const blank = { title: "", category: "Poster Design", project_type: "POSTER DESIGN", description: "", published: true };
@@ -52,7 +52,7 @@ export function AdminDashboard() {
     if (data) setBrand({ ...defaultBrand, ...data });
   }
   async function load() {
-    const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("projects").select("*").order("sort_order", { ascending: true }).order("created_at", { ascending: false });
     if (error) setMessage(error.message); else setProjects(data || []);
   }
   useEffect(() => { load(); loadBrand(); }, []);
@@ -75,7 +75,7 @@ export function AdminDashboard() {
 
   function startEdit(p: Project) {
     setEditing(p.id);
-    setForm({ title: p.title, category: p.video_url ? "Video Editing" : "Poster Design", project_type: p.video_url ? "VIDEO EDITING" : "POSTER DESIGN", description: p.description || "", published: p.published });
+    setForm({ title: p.title, category: p.category === "AI Generated Ads" ? "AI Generated Ads" : (p.category === "Video Editing" ? "Video Editing" : (p.video_url ? "Video Editing" : "Poster Design")), project_type: p.category === "AI Generated Ads" ? "AI GENERATED ADS" : (p.category === "Video Editing" || p.video_url ? "VIDEO EDITING" : "POSTER DESIGN"), description: p.description || "", published: p.published });
     setImage(null); setVideo(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -95,10 +95,7 @@ export function AdminDashboard() {
       let video_url: string | null | undefined;
       if (image) image_url = await uploadFile(image, "poster");
       if (video) video_url = await uploadFile(video, "video");
-      const existing = editing ? projects.find((project) => project.id === editing) : undefined;
-      const isVideo = Boolean(video || existing?.video_url);
-      const autoCategory = isVideo ? "Video Editing" : "Poster Design";
-      const payload: any = { ...form, category: autoCategory, project_type: isVideo ? "VIDEO EDITING" : "POSTER DESIGN", ...(image_url ? { image_url } : {}), ...(video_url ? { video_url } : {}) };
+      const payload: any = { ...form, project_type: form.category.toUpperCase(), ...(image_url ? { image_url } : {}), ...(video_url ? { video_url } : {}) };
       if (editing) {
         const { error } = await supabase.from("projects").update(payload).eq("id", editing);
         if (error) throw error;
@@ -120,13 +117,36 @@ export function AdminDashboard() {
     await load();
   }
 
+  async function moveProject(project: Project, direction: -1 | 1) {
+    const categoryProjects = shown.filter((item) => categoryOf(item) === categoryOf(project));
+    const index = categoryProjects.findIndex((item) => item.id === project.id);
+    const target = categoryProjects[index + direction];
+    if (!target) return;
+    const reordered = [...categoryProjects];
+    [reordered[index], reordered[index + direction]] = [reordered[index + direction], reordered[index]];
+    setBusy(true);
+    setMessage("");
+    try {
+      for (let i = 0; i < reordered.length; i++) {
+        const { error } = await supabase.from("projects").update({ sort_order: i + 1 }).eq("id", reordered[i].id);
+        if (error) throw error;
+      }
+      setMessage("Project order updated.");
+      await load();
+    } catch (err: any) {
+      setMessage(err.message || "Could not update project order. Check that the sort_order column exists in Supabase.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function togglePublished(p: Project) {
     const { error } = await supabase.from("projects").update({ published: !p.published }).eq("id", p.id);
     setMessage(error ? error.message : (p.published ? "Project unpublished." : "Project published."));
     await load();
   }
 
-  const categoryOf = (p: Project) => p.video_url ? "Video Editing" : "Poster Design";
+  const categoryOf = (p: Project) => p.category === "AI Generated Ads" ? "AI Generated Ads" : (p.category === "Video Editing" ? "Video Editing" : (p.video_url ? "Video Editing" : "Poster Design"));
   const shown = filter === "All" ? projects : projects.filter(p => categoryOf(p) === filter);
 
   return (
@@ -136,7 +156,7 @@ export function AdminDashboard() {
         <div className="dashboard-top-actions"><a href="/" target="_blank" rel="noreferrer">View website ↗</a><button onClick={() => supabase.auth.signOut()}>Sign out</button></div>
       </header>
       <div className="dashboard-content">
-        <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Upload a video to add it to Video Editing, or an image to add it to Poster Design. Categories are assigned automatically.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
+        <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Choose a category manually for every project: Video Editing, Poster Design, or AI Generated Ads. You can upload a video, an image, or both.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
 
         <section className="admin-panel">
           <div className="admin-panel-heading"><div><p className="admin-kicker">WEBSITE CONTENT</p><h2>Brand & text settings</h2></div></div>
@@ -187,14 +207,25 @@ export function AdminDashboard() {
           <form className="project-form" onSubmit={save}>
             <div className="admin-form-grid">
               <label>Project title<input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required placeholder="e.g. Diwali campaign poster"/></label>
-              <label>Category (automatic)<input value={video ? "Video Editing" : (editing && projects.find(p=>p.id===editing)?.video_url ? "Video Editing" : "Poster Design")} readOnly /></label>
+              <label>Category<select value={form.category} onChange={e=>setForm({...form,category:e.target.value,project_type:e.target.value.toUpperCase()})}><option>Video Editing</option><option>Poster Design</option><option>AI Generated Ads</option></select></label>
             </div>
             <label>Short description<textarea rows={3} value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Briefly describe this project…"/></label>
+            {editing && (() => {
+              const current = projects.find(project => project.id === editing);
+              return current ? <div className="admin-current-media">
+                <strong>Currently uploaded media</strong>
+                <div className="admin-form-grid">
+                  {current.image_url && <div><small>Current image / thumbnail</small><a href={current.image_url} target="_blank" rel="noreferrer">View current image ↗</a></div>}
+                  {current.video_url && <div><small>Current video</small><a href={current.video_url} target="_blank" rel="noreferrer">Open current video ↗</a></div>}
+                </div>
+                <small>Leave the upload fields empty to keep the existing files. Choose a new file only if you want to replace that media.</small>
+              </div> : null;
+            })()}
             <div className="admin-form-grid">
-              <label className="upload-box"><span className="upload-symbol">＋</span><strong>{image ? image.name : "Choose poster / thumbnail"}</strong><small>JPG, PNG, WebP · up to 50 MB</small><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e=>setImage(e.target.files?.[0] || null)}/></label>
-              <label className="upload-box"><span className="upload-symbol">▶</span><strong>{video ? video.name : "Choose video file"}</strong><small>MP4, WebM, MOV · up to 50 MB</small><input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={e=>setVideo(e.target.files?.[0] || null)}/></label>
+              <label className="upload-box"><span className="upload-symbol">＋</span><strong>{image ? image.name : editing ? "Replace poster / thumbnail (optional)" : "Choose poster / thumbnail"}</strong><small>JPG, PNG, WebP · up to 50 MB</small><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e=>setImage(e.target.files?.[0] || null)}/></label>
+              <label className="upload-box"><span className="upload-symbol">▶</span><strong>{video ? video.name : editing ? "Replace video file (optional)" : "Choose video file"}</strong><small>MP4, WebM, MOV · up to 50 MB</small><input type="file" accept="video/mp4,video/webm,video/quicktime" onChange={e=>setVideo(e.target.files?.[0] || null)}/></label>
             </div>
-            <p className="upload-note">Video uploads are stored online and play directly in your portfolio. For videos larger than 50 MB, compress the export or use a YouTube embed in a future update.</p>
+            <p className="upload-note">When editing, you can change the title, description, category and publish status. Leave media fields empty to keep existing uploads; select a new file to replace it. Video uploads are stored online and play directly in your portfolio. For videos larger than 50 MB, compress the export or use a YouTube embed in a future update.</p>
             <label className="publish-toggle"><input type="checkbox" checked={form.published} onChange={e=>setForm({...form,published:e.target.checked})}/> Publish this project on my public website</label>
             <button className="admin-primary" disabled={busy}>{busy ? "Uploading and saving…" : editing ? "Save changes →" : "Add project →"}</button>
           </form>
@@ -202,12 +233,12 @@ export function AdminDashboard() {
         </section>
 
         <section className="admin-projects">
-          <div className="admin-panel-heading"><div><p className="admin-kicker">CONTENT LIBRARY</p><h2>Your projects</h2></div><select className="filter-select" value={filter} onChange={e=>setFilter(e.target.value)}><option>All</option><option>Video Editing</option><option>Poster Design</option></select></div>
+          <div className="admin-panel-heading"><div><p className="admin-kicker">CONTENT LIBRARY</p><h2>Your projects</h2></div><select className="filter-select" value={filter} onChange={e=>setFilter(e.target.value)}><option>All</option><option>Video Editing</option><option>Poster Design</option><option>AI Generated Ads</option></select></div>
           {shown.length === 0 ? <div className="empty-projects">No projects here yet. Add your first project above.</div> :
             <div className="admin-project-list">{shown.map(p=><article className="admin-project-item" key={p.id}>
               <div className="admin-thumb">{p.image_url ? <img src={p.image_url} alt=""/> : p.video_url ? <span>▶</span> : <span>✳</span>}</div>
               <div className="admin-project-info"><strong>{p.title}</strong><small>{categoryOf(p)}{p.video_url ? " · Video attached" : " · Image"}</small><span className={p.published ? "published-label" : "draft-label"}>{p.published ? "PUBLISHED" : "DRAFT"}</span></div>
-              <div className="admin-item-actions"><button onClick={()=>startEdit(p)}>Edit</button><button onClick={()=>togglePublished(p)}>{p.published ? "Unpublish" : "Publish"}</button><button className="delete-action" onClick={()=>remove(p.id)}>Delete</button></div>
+              <div className="admin-item-actions"><button type="button" title="Move up" disabled={busy || shown.filter(item=>categoryOf(item)===categoryOf(p)).findIndex(item=>item.id===p.id)===0} onClick={()=>moveProject(p,-1)}>↑</button><button type="button" title="Move down" disabled={busy || shown.filter(item=>categoryOf(item)===categoryOf(p)).findIndex(item=>item.id===p.id)===shown.filter(item=>categoryOf(item)===categoryOf(p)).length-1} onClick={()=>moveProject(p,1)}>↓</button><button onClick={()=>startEdit(p)}>Edit</button><button onClick={()=>togglePublished(p)}>{p.published ? "Unpublish" : "Publish"}</button><button className="delete-action" onClick={()=>remove(p.id)}>Delete</button></div>
             </article>)}</div>}
         </section>
       </div>
