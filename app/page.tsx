@@ -30,7 +30,7 @@ const defaultSettings: SiteSettings = {
 
 type Project = {
   title: string;
-  category: "Video Editing" | "Graphic Design" | "Branding";
+  category: "Video Editing" | "Poster Design";
   type: string;
   number: string;
   description: string;
@@ -41,10 +41,10 @@ type Project = {
 
 const projects: Project[] = [
   { title: "Campaign in Motion", category: "Video Editing", type: "PROMOTIONAL FILM", number: "01", description: "A punchy promotional edit built around rhythm, movement and a clear brand message.", visual: "visual-one" },
-  { title: "Festival Stories", category: "Graphic Design", type: "SOCIAL MEDIA CAMPAIGN", number: "02", description: "A bold festive visual system designed to stand out in a crowded social feed.", visual: "visual-two" },
+  { title: "Festival Stories", category: "Poster Design", type: "SOCIAL MEDIA CAMPAIGN", number: "02", description: "A bold festive visual system designed to stand out in a crowded social feed.", visual: "visual-two" },
   { title: "After Hours", category: "Video Editing", type: "CINEMATIC REEL", number: "03", description: "A cinematic short-form edit with atmospheric pacing and expressive transitions.", visual: "visual-three" },
-  { title: "Brand Language", category: "Branding", type: "IDENTITY CONCEPT", number: "04", description: "A visual identity direction connecting typography, colour and brand personality.", visual: "visual-four" },
-  { title: "The Big Offer", category: "Graphic Design", type: "ADVERTISING CREATIVE", number: "05", description: "A high-impact promotional layout that puts the offer and product first.", visual: "visual-five" },
+  { title: "Brand Language", category: "Poster Design", type: "IDENTITY CONCEPT", number: "04", description: "A visual identity direction connecting typography, colour and brand personality.", visual: "visual-four" },
+  { title: "The Big Offer", category: "Poster Design", type: "ADVERTISING CREATIVE", number: "05", description: "A high-impact promotional layout that puts the offer and product first.", visual: "visual-five" },
   { title: "Sound & Vision", category: "Video Editing", type: "MOTION EXPERIMENT", number: "06", description: "An energetic edit exploring sound-led cuts, kinetic type and visual flow.", visual: "visual-six" }
 ];
 
@@ -79,7 +79,7 @@ export default function Home() {
     supabase.from("projects").select("*").eq("published", true).order("created_at", { ascending: false })
       .then(({ data }) => {
         if (data) setLiveProjects(data.map((p: any, i: number) => ({
-          title: p.title, category: p.category, type: p.project_type || "CREATIVE PROJECT",
+          title: p.title, category: p.video_url ? "Video Editing" : "Poster Design", type: p.video_url ? "VIDEO EDITING" : "POSTER DESIGN",
           number: String(i + 1).padStart(2, "0"), description: p.description || "",
           visual: ["visual-one","visual-two","visual-three","visual-four","visual-five","visual-six"][i % 6],
           image_url: p.image_url, video_url: p.video_url
@@ -88,13 +88,15 @@ export default function Home() {
   }, []);
   const currentProjects = liveProjects ?? projects;
   const groupedProjects = useMemo(() => {
-    const groups = new Map<string, Project[]>();
-    currentProjects.forEach((project) => {
-      const label = (project.type && !["CREATIVE PROJECT", "PROJECT"].includes(project.type.toUpperCase())) ? project.type : project.category;
-      const key = `${project.category}::${label}`;
-      groups.set(key, [...(groups.get(key) || []), project]);
-    });
-    return Array.from(groups.entries()).map(([key, items]) => ({ key, title: key.split("::")[1], category: items[0].category, items }));
+    const normalized = currentProjects.map((project) => ({
+      ...project,
+      category: project.video_url ? "Video Editing" : "Poster Design",
+      type: project.video_url ? "VIDEO EDITING" : "POSTER DESIGN"
+    }));
+    return [
+      { key: "video-editing", title: "VIDEO EDITING", category: "Video Editing", items: normalized.filter((project) => project.video_url) },
+      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design", items: normalized.filter((project) => !project.video_url && project.image_url) }
+    ].filter((group) => group.items.length > 0);
   }, [currentProjects]);
 
   const closeMenu = () => setMenuOpen(false);
