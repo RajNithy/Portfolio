@@ -132,7 +132,7 @@ export function AdminDashboard() {
         <div className="dashboard-top-actions"><a href="/" target="_blank" rel="noreferrer">View website ↗</a><button onClick={() => supabase.auth.signOut()}>Sign out</button></div>
       </header>
       <div className="dashboard-content">
-        <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Upload your poster or video, then publish it to your website.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
+        <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Upload posters and videos. Use the same gallery section heading to group related projects together.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
 
         <section className="admin-panel">
           <div className="admin-panel-heading"><div><p className="admin-kicker">WEBSITE CONTENT</p><h2>Brand & text settings</h2></div></div>
@@ -184,7 +184,7 @@ export function AdminDashboard() {
             <div className="admin-form-grid">
               <label>Project title<input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required placeholder="e.g. Diwali campaign poster"/></label>
               <label>Category<select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}><option>Graphic Design</option><option>Video Editing</option><option>Branding</option></select></label>
-              <label>Project label<input value={form.project_type} onChange={e=>setForm({...form,project_type:e.target.value})} placeholder="e.g. PROMOTIONAL REEL"/></label>
+              <label>Gallery section heading<input value={form.project_type} onChange={e=>setForm({...form,project_type:e.target.value})} placeholder="e.g. PROMOTION REELS VIDEO EDITING"/></label>
             </div>
             <label>Short description<textarea rows={3} value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Briefly describe this project…"/></label>
             <div className="admin-form-grid">
