@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -48,10 +48,27 @@ const projects: Project[] = [
   { title: "Sound & Vision", category: "Video Editing", type: "MOTION EXPERIMENT", number: "06", description: "An energetic edit exploring sound-led cuts, kinetic type and visual flow.", visual: "visual-six" }
 ];
 
-const filters = ["All Work", "Video Editing", "Graphic Design", "Branding"] as const;
+function AutoPreview({ src, poster, title }: { src: string; poster?: string | null; title: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+          video.play().catch(() => undefined);
+        } else {
+          video.pause();
+        }
+      });
+    }, { threshold: [0, 0.35, 0.7] });
+    observer.observe(video);
+    return () => { observer.disconnect(); video.pause(); };
+  }, [src]);
+  return <video ref={videoRef} className="gallery-video" src={src} poster={poster || undefined} muted loop playsInline preload="metadata" aria-label={title} />;
+}
 
 export default function Home() {
-  const [active, setActive] = useState<(typeof filters)[number]>("All Work");
   const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [liveProjects, setLiveProjects] = useState<Project[] | null>(null);
@@ -61,7 +78,7 @@ export default function Home() {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
     supabase.from("projects").select("*").eq("published", true).order("created_at", { ascending: false })
       .then(({ data }) => {
-        if (data && data.length) setLiveProjects(data.map((p: any, i: number) => ({
+        if (data) setLiveProjects(data.map((p: any, i: number) => ({
           title: p.title, category: p.category, type: p.project_type || "CREATIVE PROJECT",
           number: String(i + 1).padStart(2, "0"), description: p.description || "",
           visual: ["visual-one","visual-two","visual-three","visual-four","visual-five","visual-six"][i % 6],
@@ -69,8 +86,16 @@ export default function Home() {
         })));
       });
   }, []);
-  const currentProjects = liveProjects || projects;
-  const visible = useMemo(() => active === "All Work" ? currentProjects : currentProjects.filter(p => p.category === active), [active]);
+  const currentProjects = liveProjects ?? projects;
+  const groupedProjects = useMemo(() => {
+    const groups = new Map<string, Project[]>();
+    currentProjects.forEach((project) => {
+      const label = (project.type && !["CREATIVE PROJECT", "PROJECT"].includes(project.type.toUpperCase())) ? project.type : project.category;
+      const key = `${project.category}::${label}`;
+      groups.set(key, [...(groups.get(key) || []), project]);
+    });
+    return Array.from(groups.entries()).map(([key, items]) => ({ key, title: key.split("::")[1], category: items[0].category, items }));
+  }, [currentProjects]);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -132,30 +157,32 @@ export default function Home() {
       </section>
 
       <section className="work-section section-wrap" id="work">
-        <div className="section-heading">
-          <div><div className="eyebrow">A FEW THINGS I’VE MADE</div><h2>Selected <span>work.</span></h2></div>
-          <p>A mix of motion, design and ideas.<br />More projects coming soon.</p>
+        <div className="gallery-intro">
+          <div className="eyebrow"><span className="status-dot" /> THE RAAK EDITZ SHOWREEL COLLECTION</div>
+          <h2>Work that <span>moves.</span></h2>
+          <p>Promotional films, reels, visual stories and design experiments — selected work from the studio.</p>
         </div>
-        <div className="filters" role="group" aria-label="Filter projects">
-          {filters.map(filter => <button key={filter} className={active === filter ? "filter active" : "filter"} onClick={() => setActive(filter)}>{filter}</button>)}
+        <div className="gallery-groups">
+          {groupedProjects.map((group, groupIndex) => (
+            <section className="gallery-section" key={group.key} aria-label={group.title}>
+              <motion.div className="gallery-section-title" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .25 }}>
+                <span>{String(groupIndex + 1).padStart(2, "0")}</span><h3>{group.title}</h3><span className="gallery-section-count">{String(group.items.length).padStart(2, "0")} PROJECTS</span>
+              </motion.div>
+              <div className="gallery-grid">
+                {group.items.map((project, index) => (
+                  <motion.button key={`${project.number}-${project.title}`} className="gallery-card" onClick={() => setSelected(project)} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ duration: .45, delay: Math.min(index * .06, .24) }}>
+                    <div className="gallery-media">
+                      {project.video_url ? <AutoPreview src={project.video_url} poster={project.image_url} title={project.title} /> : project.image_url ? <img className="gallery-image" src={project.image_url} alt={project.title} loading="lazy" /> : <div className={`gallery-placeholder ${project.visual}`}><span>RAAK EDITZ</span></div>}
+                      <span className="gallery-play"><Play size={15} fill="currentColor" /></span>
+                      <span className="gallery-card-index">{project.number}</span>
+                    </div>
+                    <div className="gallery-card-caption"><span>{project.category}</span><strong>{project.title}</strong></div>
+                  </motion.button>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
-        <motion.div layout className="project-grid">
-          <AnimatePresence mode="popLayout">
-            {visible.map((project, index) => (
-              <motion.button layout key={project.number} className="project-card" onClick={() => setSelected(project)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .96 }} transition={{ duration: .35, delay: index * .04 }}>
-                <div className={`project-visual ${project.visual}`}>
-                  {project.image_url ? <img className="project-image" src={project.image_url} alt={project.title} /> : <div className="project-visual-grid" />}
-                  {project.category === "Video Editing" ? <div className="play-button"><Play size={18} fill="currentColor" /></div> : null}
-                  <div className="visual-type">{project.type}</div>
-                  <div className="visual-title">{project.title}</div>
-                  <div className="visual-orb" />
-                  <span className="card-open"><ArrowUpRight size={18} /></span>
-                </div>
-                <div className="project-info"><div><span>{project.category}</span><h3>{project.title}</h3></div><span className="project-number">{project.number}</span></div>
-              </motion.button>
-            ))}
-          </AnimatePresence>
-        </motion.div>
         <div className="work-note"><span className="note-line" /> SELECTED CREATIVE WORK — UPDATED THROUGH THE CREATOR DASHBOARD.</div>
       </section>
 
@@ -208,7 +235,7 @@ export default function Home() {
         {selected && <motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelected(null)}>
           <motion.div className="project-modal" initial={{ opacity: 0, y: 25, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 15 }} onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelected(null)} aria-label="Close project details"><X /></button>
-            <div className={`modal-art project-visual ${selected.visual}`}>{selected.image_url ? <img className="project-image" src={selected.image_url} alt={selected.title} /> : null}{selected.video_url ? <video src={selected.video_url} controls playsInline preload="metadata" className="project-video" /> : <><div className="visual-title">{selected.title}</div><div className="visual-type">{selected.type}</div></>}</div>
+            <div className={`modal-art project-visual ${selected.visual}`}>{selected.image_url ? <img className="project-image" src={selected.image_url} alt={selected.title} /> : null}{selected.video_url ? <video src={selected.video_url} controls autoPlay muted playsInline preload="auto" className="project-video" /> : <><div className="visual-title">{selected.title}</div><div className="visual-type">{selected.type}</div></>}</div>
             <div className="modal-copy"><span>{selected.category} / PROJECT {selected.number}</span><h3>{selected.title}</h3><p>{selected.description}</p>{selected.video_url && <a className="text-link" href={selected.video_url} target="_blank" rel="noreferrer">Open video ↗</a>}</div>
           </motion.div>
         </motion.div>}
