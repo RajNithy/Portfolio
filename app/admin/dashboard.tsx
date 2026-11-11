@@ -75,7 +75,7 @@ export function AdminDashboard() {
 
   function startEdit(p: Project) {
     setEditing(p.id);
-    setForm({ title: p.title, category: p.category, project_type: p.project_type, description: p.description || "", published: p.published });
+    setForm({ title: p.title, category: p.video_url ? "Video Editing" : "Poster Design", project_type: p.video_url ? "VIDEO EDITING" : "POSTER DESIGN", description: p.description || "", published: p.published });
     setImage(null); setVideo(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -95,10 +95,10 @@ export function AdminDashboard() {
       let video_url: string | null | undefined;
       if (image) image_url = await uploadFile(image, "poster");
       if (video) video_url = await uploadFile(video, "video");
-      const existingProject = editing ? projects.find((project) => project.id === editing) : undefined;
-      const isVideoProject = Boolean(video || existingProject?.video_url);
-      const autoCategory = isVideoProject ? "Video Editing" : "Poster Design";
-      const payload: any = { ...form, category: autoCategory, project_type: autoCategory.toUpperCase(), ...(image_url ? { image_url } : {}), ...(video_url ? { video_url } : {}) };
+      const existing = editing ? projects.find((project) => project.id === editing) : undefined;
+      const isVideo = Boolean(video || existing?.video_url);
+      const autoCategory = isVideo ? "Video Editing" : "Poster Design";
+      const payload: any = { ...form, category: autoCategory, project_type: isVideo ? "VIDEO EDITING" : "POSTER DESIGN", ...(image_url ? { image_url } : {}), ...(video_url ? { video_url } : {}) };
       if (editing) {
         const { error } = await supabase.from("projects").update(payload).eq("id", editing);
         if (error) throw error;
@@ -126,8 +126,8 @@ export function AdminDashboard() {
     await load();
   }
 
-  const projectCategory = (p: Project) => p.video_url ? "Video Editing" : "Poster Design";
-  const shown = filter === "All" ? projects : projects.filter(p => projectCategory(p) === filter);
+  const categoryOf = (p: Project) => p.video_url ? "Video Editing" : "Poster Design";
+  const shown = filter === "All" ? projects : projects.filter(p => categoryOf(p) === filter);
 
   return (
     <main className="dashboard-screen">
@@ -136,7 +136,7 @@ export function AdminDashboard() {
         <div className="dashboard-top-actions"><a href="/" target="_blank" rel="noreferrer">View website ↗</a><button onClick={() => supabase.auth.signOut()}>Sign out</button></div>
       </header>
       <div className="dashboard-content">
-        <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Upload a video to place it under Video Editing, or upload an image to place it under Poster Design. Categories are assigned automatically.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
+        <div className="dashboard-heading"><div><p className="admin-kicker">YOUR CREATIVE SPACE</p><h1>Portfolio manager.</h1><p className="admin-muted">Upload a video to add it to Video Editing, or an image to add it to Poster Design. Categories are assigned automatically.</p></div><div className="project-count"><strong>{projects.length}</strong><span>PROJECTS</span></div></div>
 
         <section className="admin-panel">
           <div className="admin-panel-heading"><div><p className="admin-kicker">WEBSITE CONTENT</p><h2>Brand & text settings</h2></div></div>
@@ -187,7 +187,7 @@ export function AdminDashboard() {
           <form className="project-form" onSubmit={save}>
             <div className="admin-form-grid">
               <label>Project title<input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required placeholder="e.g. Diwali campaign poster"/></label>
-              <label className="category-auto-label">Category is automatic<input value={video ? "Video Editing" : image ? "Poster Design" : (editing && projects.find(p=>p.id===editing)?.video_url ? "Video Editing" : "Poster Design")} readOnly /></label>
+              <label>Category (automatic)<input value={video ? "Video Editing" : (editing && projects.find(p=>p.id===editing)?.video_url ? "Video Editing" : "Poster Design")} readOnly /></label>
             </div>
             <label>Short description<textarea rows={3} value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Briefly describe this project…"/></label>
             <div className="admin-form-grid">
@@ -206,7 +206,7 @@ export function AdminDashboard() {
           {shown.length === 0 ? <div className="empty-projects">No projects here yet. Add your first project above.</div> :
             <div className="admin-project-list">{shown.map(p=><article className="admin-project-item" key={p.id}>
               <div className="admin-thumb">{p.image_url ? <img src={p.image_url} alt=""/> : p.video_url ? <span>▶</span> : <span>✳</span>}</div>
-              <div className="admin-project-info"><strong>{p.title}</strong><small>{projectCategory(p)}{p.video_url ? " · Video attached" : " · Image"}</small><span className={p.published ? "published-label" : "draft-label"}>{p.published ? "PUBLISHED" : "DRAFT"}</span></div>
+              <div className="admin-project-info"><strong>{p.title}</strong><small>{categoryOf(p)}{p.video_url ? " · Video attached" : " · Image"}</small><span className={p.published ? "published-label" : "draft-label"}>{p.published ? "PUBLISHED" : "DRAFT"}</span></div>
               <div className="admin-item-actions"><button onClick={()=>startEdit(p)}>Edit</button><button onClick={()=>togglePublished(p)}>{p.published ? "Unpublish" : "Publish"}</button><button className="delete-action" onClick={()=>remove(p.id)}>Delete</button></div>
             </article>)}</div>}
         </section>
