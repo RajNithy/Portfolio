@@ -88,14 +88,11 @@ export default function Home() {
   }, []);
   const currentProjects = liveProjects ?? projects;
   const groupedProjects = useMemo(() => {
-    const normalized = currentProjects.map((project) => ({
-      ...project,
-      category: project.video_url ? "Video Editing" : "Poster Design",
-      type: project.video_url ? "VIDEO EDITING" : "POSTER DESIGN"
-    }));
+    const videoProjects = currentProjects.filter((project) => Boolean(project.video_url));
+    const posterProjects = currentProjects.filter((project) => !project.video_url && Boolean(project.image_url));
     return [
-      { key: "video-editing", title: "VIDEO EDITING", category: "Video Editing", items: normalized.filter((project) => project.video_url) },
-      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design", items: normalized.filter((project) => !project.video_url && project.image_url) }
+      { key: "video-editing", title: "VIDEO EDITING", category: "Video Editing" as const, items: videoProjects },
+      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design" as const, items: posterProjects }
     ].filter((group) => group.items.length > 0);
   }, [currentProjects]);
 
