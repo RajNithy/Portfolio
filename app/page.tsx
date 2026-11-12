@@ -106,7 +106,8 @@ export default function Home() {
       <div className="noise" aria-hidden="true" />
       <header className="site-header">
         <a className="brand" href="#home" onClick={closeMenu} aria-label="Raak Editz home">
-          {settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt={settings.brand_name} /> : <><span className="brand-mark">R<span>.</span></span><span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span></>}
+          {settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt="" /> : <span className="brand-mark">R<span>.</span></span>}
+          <span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span>
         </a>
         <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation">
           {menuOpen ? <X size={21} /> : <Menu size={21} />}
@@ -233,7 +234,7 @@ export default function Home() {
       </section>
 
       <footer className="footer section-wrap">
-        <a className="brand" href="#home">{settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt={settings.brand_name} /> : <><span className="brand-mark">R<span>.</span></span><span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span></>}</a>
+        <a className="brand" href="#home">{settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt="" /> : <span className="brand-mark">R<span>.</span></span>}<span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span></a>
         <span>© 2026 {settings.brand_name.toUpperCase()}. MADE WITH INTENTION.</span>
         <a href="#home" className="back-top">BACK TO TOP ↑</a>
       </footer>

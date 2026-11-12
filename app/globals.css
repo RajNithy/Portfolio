@@ -203,3 +203,27 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
   .admin-category-group { padding: 10px; }
   .admin-category-heading { align-items: flex-start; }
 }
+
+/* Always show the editable brand name beside the optional logo image */
+.site-header .brand,
+.site-footer .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.site-header .brand-name,
+.site-footer .brand-name {
+  display: inline-block;
+  color: #f4f8ff;
+  white-space: nowrap;
+}
+.site-header .site-logo-image,
+.site-footer .site-logo-image {
+  width: 42px;
+  height: 42px;
+  max-width: 42px;
+  max-height: 42px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
