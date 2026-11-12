@@ -209,7 +209,7 @@ export function AdminDashboard() {
           <form className="project-form" onSubmit={save}>
             <div className="admin-form-grid">
               <label>Project title<input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required placeholder="e.g. Diwali campaign poster"/></label>
-              <label>Category<select value={form.category} onChange={e=>setForm({...form,category:e.target.value,project_type:e.target.value.toUpperCase()})}><option>Video Editing</option><option>Poster Design</option><option>AI Generated Ads</option></select></label>
+              <label>Category<select value={form.category} onChange={e=>setForm({...form,category:e.target.value,project_type:e.target.value.toUpperCase()})}><option>Video Editing</option><option>AI Generated Ads</option><option>Poster Design</option></select></label>
             </div>
             <label>Short description<textarea rows={3} value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Briefly describe this project…"/></label>
             {editing && (() => {
@@ -235,10 +235,10 @@ export function AdminDashboard() {
         </section>
 
         <section className="admin-projects">
-          <div className="admin-panel-heading"><div><p className="admin-kicker">CONTENT LIBRARY</p><h2>Your projects</h2></div><select className="filter-select" value={filter} onChange={e=>setFilter(e.target.value)}><option>All</option><option>Video Editing</option><option>Poster Design</option><option>AI Generated Ads</option></select></div>
+          <div className="admin-panel-heading"><div><p className="admin-kicker">CONTENT LIBRARY</p><h2>Your projects</h2></div><select className="filter-select" value={filter} onChange={e=>setFilter(e.target.value)}><option>All</option><option>Video Editing</option><option>AI Generated Ads</option><option>Poster Design</option></select></div>
           {shown.length === 0 ? <div className="empty-projects">No projects here yet. Add your first project above.</div> :
             <div className="admin-category-groups">
-              {(["Video Editing", "Poster Design", "AI Generated Ads"] as const)
+              {(["Video Editing", "AI Generated Ads", "Poster Design"] as const)
                 .filter(category => filter === "All" || filter === category)
                 .map(category => {
                   const categoryItems = shown.filter(item => categoryOf(item) === category);
