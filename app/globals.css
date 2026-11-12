@@ -157,3 +157,49 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
     height: auto;
   }
 }
+
+
+/* Admin content library: category-wise project organization */
+#project-editor {
+  scroll-margin-top: 24px;
+}
+.admin-category-groups {
+  display: grid;
+  gap: 30px;
+  margin-top: 18px;
+}
+.admin-category-group {
+  border: 1px solid rgba(90, 170, 230, 0.22);
+  background: rgba(7, 17, 31, 0.42);
+  padding: 16px;
+}
+.admin-category-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 0 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(90, 170, 230, 0.25);
+}
+.admin-category-heading h3 {
+  margin: 0;
+  color: #f4f8ff;
+  font-size: 16px;
+  font-weight: 700;
+}
+.admin-category-heading span {
+  color: #72caff;
+  font-size: 10px;
+  letter-spacing: 1.4px;
+}
+.admin-category-group .admin-project-list {
+  margin-top: 0;
+}
+.admin-category-group .admin-project-item:last-child {
+  border-bottom: 0;
+}
+@media (max-width: 650px) {
+  .admin-category-group { padding: 10px; }
+  .admin-category-heading { align-items: flex-start; }
+}
