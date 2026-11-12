@@ -283,3 +283,58 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
   from { transform: translateX(-5%); }
   to { transform: translateX(145%); }
 }
+
+
+/* Minimal portfolio layout: hero, category titles and project gallery */
+.gallery-section-title {
+  margin-top: 12px;
+}
+.gallery-groups {
+  padding-top: 10px;
+}
+.hero-art .art-topline,
+.hero-art .art-bottomline,
+.hero-art .art-label,
+.hero-art .floating-tag,
+.hero-art .hero-index {
+  display: none !important;
+}
+.spark-cursor {
+  position: fixed;
+  z-index: 9999;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+.spark-cursor b {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  left: -2px;
+  top: -2px;
+  border-radius: 50%;
+  background: #35c5ff;
+  box-shadow: 0 0 8px #35c5ff, 0 0 16px rgba(53,197,255,.8);
+}
+.spark-cursor i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #a6edff;
+  box-shadow: 0 0 7px #35c5ff;
+  animation: spark-drift .65s ease-out forwards;
+}
+.spark-cursor i:nth-child(1) { --sx: -15px; --sy: -13px; }
+.spark-cursor i:nth-child(2) { --sx: 13px; --sy: -17px; animation-delay: .04s; }
+.spark-cursor i:nth-child(3) { --sx: 18px; --sy: 10px; animation-delay: .08s; }
+.spark-cursor i:nth-child(4) { --sx: -12px; --sy: 17px; animation-delay: .12s; }
+.spark-cursor i:nth-child(5) { --sx: 1px; --sy: -22px; animation-delay: .16s; }
+@keyframes spark-drift {
+  0% { opacity: .95; transform: translate(0,0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--sx),var(--sy)) scale(.15); }
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .spark-cursor { display: none; }
+}

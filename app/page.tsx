@@ -74,6 +74,12 @@ export default function Home() {
   const [liveProjects, setLiveProjects] = useState<Project[] | null>(null);
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
+  const [cursorPoint, setCursorPoint] = useState<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const move = (event: MouseEvent) => setCursorPoint({ x: event.clientX, y: event.clientY });
+    window.addEventListener("mousemove", move, { passive: true });
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
   useEffect(() => {
     let active = true;
     const loadSite = async () => {
@@ -139,6 +145,9 @@ export default function Home() {
   return (
     <main>
       <div className="noise" aria-hidden="true" />
+      {cursorPoint && <div className="spark-cursor" style={{ left: cursorPoint.x, top: cursorPoint.y }} aria-hidden="true">
+        <i /><i /><i /><i /><i /><b />
+      </div>}
       <header className="site-header">
         <a className="brand" href="#home" onClick={closeMenu} aria-label="Raak Editz home">
           {settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt="" /> : <span className="brand-mark">R<span>.</span></span>}
@@ -149,9 +158,6 @@ export default function Home() {
         </button>
         <nav className={menuOpen ? "nav nav-open" : "nav"}>
           <a href="#work" onClick={closeMenu}>Selected work</a>
-          <a href="#services" onClick={closeMenu}>What I do</a>
-          <a href="#about" onClick={closeMenu}>About</a>
-          <a className="nav-contact" href="#contact" onClick={closeMenu}>Let&apos;s talk <ArrowUpRight size={15} /></a>
         </nav>
       </header>
 
@@ -173,16 +179,10 @@ export default function Home() {
             <a className="button button-primary" href="#work">Explore my work <ArrowDownRight size={17} /></a>
             <a className="text-link" href="#contact">Start a project <ArrowUpRight size={16} /></a>
           </motion.div>
-          <div className="hero-meta">
-            <div><strong>VIDEO</strong><span>Editing & motion</span></div>
-            <div><strong>DESIGN</strong><span>Posters & identity</span></div>
-            <div><strong>DETAIL</strong><span>Made with intention</span></div>
-          </div>
         </div>
         <motion.div className="hero-art" initial={{ opacity: 0, scale: .94, rotate: 2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: .9, delay: .2 }}>
           <div className="art-glow" />
           <div className="art-frame">
-            <div className="art-topline"><span>REEL / 2026</span><span>01—06</span></div>
             <div className="art-center art-center-portrait">
               <img
                 className="hero-portrait"
@@ -191,28 +191,17 @@ export default function Home() {
                 fetchPriority="high"
               />
               <div className="hero-portrait-shade" />
-              <div className="art-label label-top">RAAK EDITZ</div>
-              <div className="art-label label-bottom">VIDEO × DESIGN</div>
             </div>
-            <div className="art-bottomline"><span>DESIGN × MOTION</span><span className="sound-bars"><i /><i /><i /><i /><i /><i /><i /></span></div>
           </div>
-          <div className="floating-tag"><Sparkles size={14} /> MADE TO STAND OUT</div>
-          <div className="hero-index">01 <span>/</span> 04</div>
         </motion.div>
-        <a className="scroll-cue" href="#work"><span /> SCROLL TO EXPLORE</a>
       </section>
 
       <section className="work-section section-wrap" id="work">
-        <div className="gallery-intro">
-          <div className="eyebrow"><span className="status-dot" /> THE RAAK EDITZ SHOWREEL COLLECTION</div>
-          <h2>Work that <span>moves.</span></h2>
-          <p>Promotional films, reels, visual stories and design experiments — selected work from the studio.</p>
-        </div>
         <div className="gallery-groups">
           {groupedProjects.map((group, groupIndex) => (
             <section className="gallery-section" key={group.key} aria-label={group.title}>
               <motion.div className="gallery-section-title" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .25 }}>
-                <span>{String(groupIndex + 1).padStart(2, "0")}</span><h3>{group.title}</h3><span className="gallery-section-count">{String(group.items.length).padStart(2, "0")} PROJECTS</span>
+                <h3>{group.title}</h3>
               </motion.div>
               <div className="gallery-grid">
                 {group.items.map((project, index) => (
@@ -229,53 +218,7 @@ export default function Home() {
             </section>
           ))}
         </div>
-        <div className="work-note"><span className="note-line" /> SELECTED CREATIVE WORK — UPDATED THROUGH THE CREATOR DASHBOARD.</div>
       </section>
-
-      <section className="services-section" id="services">
-        <div className="section-wrap">
-          <div className="section-heading">
-            <div><div className="eyebrow">WHAT I BRING TO THE TABLE</div><h2>Creative work,<br /><span>made clear.</span></h2></div>
-            <p>{settings.service_intro}</p>
-          </div>
-          <div className="service-list">
-            <div className="service-row"><div className="service-icon"><Video /></div><div><span>01 / MOTION</span><h3>{settings.service1_title}</h3><p>{settings.service1_description}</p></div><ArrowUpRight className="service-arrow" /></div>
-            <div className="service-row"><div className="service-icon"><Palette /></div><div><span>02 / VISUALS</span><h3>{settings.service2_title}</h3><p>{settings.service2_description}</p></div><ArrowUpRight className="service-arrow" /></div>
-            <div className="service-row"><div className="service-icon"><Clapperboard /></div><div><span>03 / IDENTITY</span><h3>{settings.service3_title}</h3><p>{settings.service3_description}</p></div><ArrowUpRight className="service-arrow" /></div>
-          </div>
-        </div>
-      </section>
-
-      <section className="about-section section-wrap" id="about">
-        <div className="about-stamp"><span>{settings.brand_name.split(" ")[0]}</span><strong>{settings.brand_name.split(" ").slice(1).join(" ") || "STUDIO"}</strong><i>CREATIVE STUDIO · 2026</i></div>
-        <div className="about-copy">
-          <div className="eyebrow">{settings.about_kicker}</div>
-          <h2>{settings.about_title_line1}<br /><span>{settings.about_title_line2}</span></h2>
-          <p>{settings.about_paragraph1}</p>
-          <p>{settings.about_paragraph2}</p>
-          <div className="skill-tags"><span>Photoshop</span><span>Illustrator</span><span>Premiere Pro</span><span>After Effects</span><span>Lightroom</span><span>Creative Direction</span></div>
-        </div>
-      </section>
-
-      <section className="contact-section" id="contact">
-        <div className="section-wrap contact-inner">
-          <div className="eyebrow"><span className="status-dot" /> {settings.contact_kicker}</div>
-          <h2>{settings.contact_title_line1}<br /><span>{settings.contact_title_line2}</span></h2>
-          <p>{settings.contact_description}</p>
-          <a className="button button-primary contact-cta" href={settings.contact_email ? `mailto:${settings.contact_email}?subject=Project%20enquiry` : "#contact"}>Start a conversation <ArrowUpRight size={18} /></a>
-          <div className="contact-links">
-            <a href={settings.instagram_url || "#contact"} target="_blank" rel="noreferrer"><Instagram size={17} /> Instagram <ArrowUpRight size={14} /></a>
-            <a href={settings.whatsapp_number ? `https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, "")}` : "#contact"} target="_blank" rel="noreferrer"><MessageCircle size={17} /> WhatsApp <ArrowUpRight size={14} /></a>
-            <a href={settings.contact_email ? `mailto:${settings.contact_email}` : "#contact"}><Mail size={17} /> Email <ArrowUpRight size={14} /></a>
-          </div>
-        </div>
-      </section>
-
-      <footer className="footer section-wrap">
-        <a className="brand" href="#home">{settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt="" /> : <span className="brand-mark">R<span>.</span></span>}<span className="brand-name">{settings.brand_name.split(" ")[0]}<span>{settings.brand_name.split(" ").slice(1).join(" ")}</span></span></a>
-        <span>© 2026 {settings.brand_name.toUpperCase()}. MADE WITH INTENTION.</span>
-        <a href="#home" className="back-top">BACK TO TOP ↑</a>
-      </footer>
 
       <AnimatePresence>
         {selected && <motion.div className={`modal-backdrop ${selected.video_url ? "video-backdrop" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelected(null)}>
