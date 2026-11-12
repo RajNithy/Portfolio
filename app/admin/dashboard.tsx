@@ -77,7 +77,9 @@ export function AdminDashboard() {
     setEditing(p.id);
     setForm({ title: p.title, category: p.category === "AI Generated Ads" ? "AI Generated Ads" : (p.category === "Video Editing" ? "Video Editing" : (p.video_url ? "Video Editing" : "Poster Design")), project_type: p.category === "AI Generated Ads" ? "AI GENERATED ADS" : (p.category === "Video Editing" || p.video_url ? "VIDEO EDITING" : "POSTER DESIGN"), description: p.description || "", published: p.published });
     setImage(null); setVideo(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.setTimeout(() => {
+      document.getElementById("project-editor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
   }
 
   async function uploadFile(file: File, kind: "poster" | "video") {
@@ -202,7 +204,7 @@ export function AdminDashboard() {
           {brandMessage && <p className="admin-message">{brandMessage}</p>}
         </section>
 
-        <section className="admin-panel">
+        <section className="admin-panel" id="project-editor">
           <div className="admin-panel-heading"><div><p className="admin-kicker">{editing ? "EDIT PROJECT" : "NEW PROJECT"}</p><h2>{editing ? "Update your work" : "Add to your portfolio"}</h2></div>{editing && <button type="button" className="admin-secondary" onClick={reset}>Cancel edit</button>}</div>
           <form className="project-form" onSubmit={save}>
             <div className="admin-form-grid">
@@ -235,11 +237,28 @@ export function AdminDashboard() {
         <section className="admin-projects">
           <div className="admin-panel-heading"><div><p className="admin-kicker">CONTENT LIBRARY</p><h2>Your projects</h2></div><select className="filter-select" value={filter} onChange={e=>setFilter(e.target.value)}><option>All</option><option>Video Editing</option><option>Poster Design</option><option>AI Generated Ads</option></select></div>
           {shown.length === 0 ? <div className="empty-projects">No projects here yet. Add your first project above.</div> :
-            <div className="admin-project-list">{shown.map(p=><article className="admin-project-item" key={p.id}>
-              <div className="admin-thumb">{p.image_url ? <img src={p.image_url} alt=""/> : p.video_url ? <span>▶</span> : <span>✳</span>}</div>
-              <div className="admin-project-info"><strong>{p.title}</strong><small>{categoryOf(p)}{p.video_url ? " · Video attached" : " · Image"}</small><span className={p.published ? "published-label" : "draft-label"}>{p.published ? "PUBLISHED" : "DRAFT"}</span></div>
-              <div className="admin-item-actions"><button type="button" title="Move up" disabled={busy || shown.filter(item=>categoryOf(item)===categoryOf(p)).findIndex(item=>item.id===p.id)===0} onClick={()=>moveProject(p,-1)}>↑</button><button type="button" title="Move down" disabled={busy || shown.filter(item=>categoryOf(item)===categoryOf(p)).findIndex(item=>item.id===p.id)===shown.filter(item=>categoryOf(item)===categoryOf(p)).length-1} onClick={()=>moveProject(p,1)}>↓</button><button onClick={()=>startEdit(p)}>Edit</button><button onClick={()=>togglePublished(p)}>{p.published ? "Unpublish" : "Publish"}</button><button className="delete-action" onClick={()=>remove(p.id)}>Delete</button></div>
-            </article>)}</div>}
+            <div className="admin-category-groups">
+              {(["Video Editing", "Poster Design", "AI Generated Ads"] as const)
+                .filter(category => filter === "All" || filter === category)
+                .map(category => {
+                  const categoryItems = shown.filter(item => categoryOf(item) === category);
+                  if (categoryItems.length === 0) return null;
+                  return <section className="admin-category-group" key={category}>
+                    <div className="admin-category-heading"><h3>{category}</h3><span>{String(categoryItems.length).padStart(2, "0")} PROJECTS</span></div>
+                    <div className="admin-project-list">{categoryItems.map((p, index) => <article className="admin-project-item" key={p.id}>
+                      <div className="admin-thumb">{p.image_url ? <img src={p.image_url} alt=""/> : p.video_url ? <span>▶</span> : <span>✳</span>}</div>
+                      <div className="admin-project-info"><strong>{p.title}</strong><small>{categoryOf(p)}{p.video_url ? " · Video attached" : " · Image"}</small><span className={p.published ? "published-label" : "draft-label"}>{p.published ? "PUBLISHED" : "DRAFT"}</span></div>
+                      <div className="admin-item-actions">
+                        <button type="button" title="Move up within category" disabled={busy || index === 0} onClick={()=>moveProject(p,-1)}>↑</button>
+                        <button type="button" title="Move down within category" disabled={busy || index === categoryItems.length - 1} onClick={()=>moveProject(p,1)}>↓</button>
+                        <button type="button" onClick={()=>startEdit(p)}>Edit</button>
+                        <button type="button" onClick={()=>togglePublished(p)}>{p.published ? "Unpublish" : "Publish"}</button>
+                        <button type="button" className="delete-action" onClick={()=>remove(p.id)}>Delete</button>
+                      </div>
+                    </article>)}</div>
+                  </section>;
+                })}
+            </div>}
         </section>
       </div>
     </main>
