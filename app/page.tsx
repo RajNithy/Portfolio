@@ -73,18 +73,43 @@ export default function Home() {
   const [selected, setSelected] = useState<Project | null>(null);
   const [liveProjects, setLiveProjects] = useState<Project[] | null>(null);
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    supabase.from("site_settings").select("*").eq("id", 1).maybeSingle().then(({ data }) => { if (data) setSettings({ ...defaultSettings, ...data }); });
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
-    supabase.from("projects").select("*").eq("published", true).order("sort_order", { ascending: true }).order("created_at", { ascending: false })
-      .then(({ data }) => {
-        if (data) setLiveProjects(data.map((p: any, i: number) => ({
-          title: p.title, category: p.category === "AI Generated Ads" ? "AI Generated Ads" : (p.category === "Video Editing" ? "Video Editing" : (p.video_url ? "Video Editing" : "Poster Design")), type: p.category === "AI Generated Ads" ? "AI GENERATED ADS" : (p.category === "Video Editing" || p.video_url ? "VIDEO EDITING" : "POSTER DESIGN"),
-          number: String(i + 1).padStart(2, "0"), description: p.description || "",
-          visual: ["visual-one","visual-two","visual-three","visual-four","visual-five","visual-six"][i % 6],
-          image_url: p.image_url, video_url: p.video_url
-        })));
-      });
+    let active = true;
+    const loadSite = async () => {
+      try {
+        const settingsRequest = supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
+        const projectsRequest = supabase.from("projects").select("*").eq("published", true).order("sort_order", { ascending: true }).order("created_at", { ascending: false });
+        const [settingsResult, projectsResult] = await Promise.all([settingsRequest, projectsRequest]);
+        if (!active) return;
+        if (settingsResult.data) setSettings({ ...defaultSettings, ...settingsResult.data });
+        if (projectsResult.data) {
+          setLiveProjects(projectsResult.data.map((p: any, i: number) => ({
+            title: p.title,
+            category: p.category === "AI Generated Ads" ? "AI Generated Ads" : (p.category === "Video Editing" ? "Video Editing" : (p.video_url ? "Video Editing" : "Poster Design")),
+            type: p.category === "AI Generated Ads" ? "AI GENERATED ADS" : (p.category === "Video Editing" || p.video_url ? "VIDEO EDITING" : "POSTER DESIGN"),
+            number: String(i + 1).padStart(2, "0"),
+            description: p.description || "",
+            visual: ["visual-one","visual-two","visual-three","visual-four","visual-five","visual-six"][i % 6],
+            image_url: p.image_url,
+            video_url: p.video_url
+          })));
+        } else {
+          setLiveProjects([]);
+        }
+      } catch (error) {
+        console.error("Unable to load portfolio content:", error);
+        if (active) setLiveProjects([]);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      setIsLoading(false);
+      return () => { active = false; };
+    }
+    loadSite();
+    return () => { active = false; };
   }, []);
   const currentProjects = liveProjects ?? projects;
   const groupedProjects = useMemo(() => {
@@ -100,6 +125,16 @@ export default function Home() {
   }, [currentProjects]);
 
   const closeMenu = () => setMenuOpen(false);
+
+  if (isLoading) {
+    return (
+      <main className="site-loading" aria-label="Loading portfolio">
+        <div className="site-loading-mark">R<span>.</span></div>
+        <div className="site-loading-name">RAAK EDITZ</div>
+        <div className="site-loading-track"><span /></div>
+      </main>
+    );
+  }
 
   return (
     <main>

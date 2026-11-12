@@ -239,3 +239,47 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
   line-height: 1.25;
   text-transform: uppercase;
 }
+
+
+/* Keep default/demo content hidden until the live Supabase content is ready */
+.site-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #05080e;
+  color: #f4f8ff;
+}
+.site-loading-mark {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: #f4f8ff;
+}
+.site-loading-mark span { color: #27baff; }
+.site-loading-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #9db4ca;
+}
+.site-loading-track {
+  width: 112px;
+  height: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+  background: rgba(39,186,255,.18);
+}
+.site-loading-track span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  background: #27baff;
+  animation: site-loading-progress 1s ease-in-out infinite alternate;
+}
+@keyframes site-loading-progress {
+  from { transform: translateX(-5%); }
+  to { transform: translateX(145%); }
+}
