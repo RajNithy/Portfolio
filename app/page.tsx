@@ -90,8 +90,8 @@ export default function Home() {
   const groupedProjects = useMemo(() => {
     const categories = [
       { key: "video-editing", title: "VIDEO EDITING", category: "Video Editing" as const },
-      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design" as const },
-      { key: "ai-generated-ads", title: "AI GENERATED ADS", category: "AI Generated Ads" as const }
+      { key: "ai-generated-ads", title: "AI GENERATED ADS", category: "AI Generated Ads" as const },
+      { key: "poster-design", title: "POSTER DESIGN", category: "Poster Design" as const }
     ];
     return categories.map((group) => ({
       ...group,
