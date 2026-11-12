@@ -75,9 +75,35 @@ export default function Home() {
   const [liveProjects, setLiveProjects] = useState<Project[] | null>(null);
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
-  const [cursorPoint, setCursorPoint] = useState<{ x: number; y: number } | null>(null);
+  const [cursorParticles, setCursorParticles] = useState<Array<{ id: number; x: number; y: number; size: number; duration: number; angle: number }>>([]);
   useEffect(() => {
-    const move = (event: MouseEvent) => setCursorPoint({ x: event.clientX, y: event.clientY });
+    let previous = { x: 0, y: 0, time: 0 };
+    let particleId = 0;
+    let lastSpawn = 0;
+    const move = (event: MouseEvent) => {
+      const now = performance.now();
+      const dx = event.clientX - previous.x;
+      const dy = event.clientY - previous.y;
+      const elapsed = Math.max(8, now - previous.time);
+      const speed = previous.time ? Math.min(2.8, Math.hypot(dx, dy) / elapsed) : 0;
+      previous = { x: event.clientX, y: event.clientY, time: now };
+      if (now - lastSpawn < (speed > 1.1 ? 12 : 24)) return;
+      lastSpawn = now;
+      const count = speed > 1.8 ? 4 : speed > .75 ? 3 : 1;
+      const fresh = Array.from({ length: count }, (_, index) => ({
+        id: ++particleId,
+        x: event.clientX + (Math.random() - .5) * 10,
+        y: event.clientY + (Math.random() - .5) * 10,
+        size: 2 + Math.random() * (speed > 1.4 ? 4 : 2.5),
+        duration: 380 + Math.random() * 360,
+        angle: Math.atan2(dy, dx) + Math.PI + (Math.random() - .5) * 1.4
+      }));
+      setCursorParticles(current => [...current.slice(-70), ...fresh]);
+      window.setTimeout(() => {
+        const expired = new Set(fresh.map(item => item.id));
+        setCursorParticles(current => current.filter(item => !expired.has(item.id)));
+      }, 850);
+    };
     window.addEventListener("mousemove", move, { passive: true });
     return () => window.removeEventListener("mousemove", move);
   }, []);
@@ -146,9 +172,14 @@ export default function Home() {
   return (
     <main>
       <div className="noise" aria-hidden="true" />
-      {cursorPoint && <div className="spark-cursor" style={{ left: cursorPoint.x, top: cursorPoint.y }} aria-hidden="true">
-        <i /><i /><i /><i /><i /><b />
-      </div>}
+      <div className="cursor-particle-layer" aria-hidden="true">
+        {cursorParticles.map(particle => <i key={particle.id} className="cursor-particle" style={{
+          left: particle.x, top: particle.y, width: particle.size, height: particle.size,
+          animationDuration: `${particle.duration}ms`,
+          ["--particle-x" as any]: `${Math.cos(particle.angle) * (18 + particle.size * 5)}px`,
+          ["--particle-y" as any]: `${Math.sin(particle.angle) * (18 + particle.size * 5)}px`
+        }} />)}
+      </div>
       <header className="site-header">
         <a className="brand" href="#home" onClick={closeMenu} aria-label="Raak Editz home">
           {settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt="" /> : <span className="brand-mark">R<span>.</span></span>}
@@ -158,7 +189,6 @@ export default function Home() {
           {menuOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
         <nav className={menuOpen ? "nav nav-open" : "nav"}>
-          <a href="#work" onClick={closeMenu}>Selected work</a>
           <button type="button" className="nav-contact-button" onClick={() => { closeMenu(); setContactOpen(true); }}>Contact</button>
         </nav>
       </header>

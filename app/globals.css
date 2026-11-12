@@ -466,3 +466,34 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
   .nav-contact-button { width: 100%; }
   .contact-modal { padding: 30px 22px 24px; }
 }
+
+
+/* Speed-reactive cursor trail: particles drift opposite the pointer movement */
+.spark-cursor { display: none !important; }
+.cursor-particle-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cursor-particle {
+  position: fixed;
+  display: block;
+  border-radius: 50%;
+  opacity: .95;
+  background: radial-gradient(circle, #e7fbff 0%, #54d5ff 35%, #168bff 72%, rgba(22,139,255,0) 100%);
+  box-shadow: 0 0 7px rgba(52,197,255,.9), 0 0 16px rgba(28,137,255,.55);
+  transform: translate(-50%, -50%);
+  animation-name: cursor-particle-flight;
+  animation-timing-function: cubic-bezier(.15,.65,.3,1);
+  animation-fill-mode: forwards;
+}
+@keyframes cursor-particle-flight {
+  0% { opacity: .95; transform: translate(-50%,-50%) scale(1); }
+  55% { opacity: .65; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--particle-x)),calc(-50% + var(--particle-y))) scale(.08); }
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-particle-layer { display: none !important; }
+}
