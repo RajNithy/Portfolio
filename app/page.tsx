@@ -70,6 +70,7 @@ function AutoPreview({ src, poster, title }: { src: string; poster?: string | nu
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [liveProjects, setLiveProjects] = useState<Project[] | null>(null);
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
@@ -158,6 +159,7 @@ export default function Home() {
         </button>
         <nav className={menuOpen ? "nav nav-open" : "nav"}>
           <a href="#work" onClick={closeMenu}>Selected work</a>
+          <button type="button" className="nav-contact-button" onClick={() => { closeMenu(); setContactOpen(true); }}>Contact</button>
         </nav>
       </header>
 
@@ -177,7 +179,7 @@ export default function Home() {
           </motion.p>
           <motion.div className="hero-actions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .45 }}>
             <a className="button button-primary" href="#work">Explore my work <ArrowDownRight size={17} /></a>
-            <a className="text-link" href="#contact">Start a project <ArrowUpRight size={16} /></a>
+            <button type="button" className="text-link hero-contact-link" onClick={() => setContactOpen(true)}>Start a project <ArrowUpRight size={16} /></button>
           </motion.div>
         </div>
         <motion.div className="hero-art" initial={{ opacity: 0, scale: .94, rotate: 2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: .9, delay: .2 }}>
@@ -220,6 +222,27 @@ export default function Home() {
         </div>
       </section>
 
+      <AnimatePresence>
+        {contactOpen && <motion.div className="contact-modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setContactOpen(false)}>
+          <motion.div className="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title" initial={{ opacity: 0, y: 18, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .97 }} onClick={e => e.stopPropagation()}>
+            <button type="button" className="contact-modal-close" onClick={() => setContactOpen(false)} aria-label="Close contact options"><X size={20} /></button>
+            <div className="contact-modal-kicker">LET&apos;S CONNECT</div>
+            <h2 id="contact-modal-title">Choose how to <span>reach me.</span></h2>
+            <div className="contact-options">
+              <a className="contact-option whatsapp-option" href={settings.whatsapp_number ? `https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, "")}` : "#"} target="_blank" rel="noreferrer" aria-disabled={!settings.whatsapp_number} onClick={e => { if (!settings.whatsapp_number) e.preventDefault(); }}>
+                <MessageCircle size={25} /><span>WhatsApp</span><ArrowUpRight size={17} />
+              </a>
+              <a className="contact-option instagram-option" href={settings.instagram_url || "#"} target="_blank" rel="noreferrer" aria-disabled={!settings.instagram_url} onClick={e => { if (!settings.instagram_url) e.preventDefault(); }}>
+                <Instagram size={25} /><span>Instagram</span><ArrowUpRight size={17} />
+              </a>
+              <a className="contact-option mail-option" href={settings.contact_email ? `mailto:${settings.contact_email}` : "#"} aria-disabled={!settings.contact_email} onClick={e => { if (!settings.contact_email) e.preventDefault(); }}>
+                <Mail size={25} /><span>Email</span><ArrowUpRight size={17} />
+              </a>
+            </div>
+            <p className="contact-modal-note">Contact details are managed from the admin panel.</p>
+          </motion.div>
+        </motion.div>}
+      </AnimatePresence>
       <AnimatePresence>
         {selected && <motion.div className={`modal-backdrop ${selected.video_url ? "video-backdrop" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelected(null)}>
           {selected.video_url ? (

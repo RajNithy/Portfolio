@@ -338,3 +338,131 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
   .spark-cursor { display: none; }
 }
+
+
+/* Animated water-fill contact button */
+.nav-contact-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(64,190,255,.75);
+  background: rgba(5,14,25,.6);
+  color: #f4f8ff;
+  padding: 12px 23px;
+  min-width: 108px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: border-color .25s ease, color .25s ease, box-shadow .25s ease;
+}
+.nav-contact-button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -8%;
+  bottom: -115%;
+  width: 116%;
+  height: 110%;
+  border-radius: 48% 52% 0 0;
+  background: linear-gradient(100deg, #087cff, #21c6f3, #8c5bff, #087cff);
+  background-size: 240% 100%;
+  transition: bottom .55s cubic-bezier(.2,.8,.2,1), border-radius .55s ease;
+  animation: water-color-shift 5s linear infinite;
+}
+.nav-contact-button:hover::before,
+.nav-contact-button:focus-visible::before {
+  bottom: -5%;
+  border-radius: 45% 55% 0 0;
+}
+.nav-contact-button:hover,
+.nav-contact-button:focus-visible {
+  color: #fff;
+  border-color: #72d9ff;
+  box-shadow: 0 0 22px rgba(31,169,255,.28);
+}
+@keyframes water-color-shift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 240% 50%; }
+}
+.hero-contact-link {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+.contact-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(1,5,12,.78);
+  backdrop-filter: blur(12px);
+}
+.contact-modal {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 36px;
+  border: 1px solid rgba(58,184,255,.48);
+  background: linear-gradient(145deg, #0b1728, #050a13 75%);
+  box-shadow: 0 24px 90px rgba(0,0,0,.55), 0 0 34px rgba(24,155,255,.12);
+}
+.contact-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(145,190,225,.25);
+  background: transparent;
+  color: #eaf5ff;
+  cursor: pointer;
+}
+.contact-modal-kicker {
+  margin-bottom: 10px;
+  color: #39c4ff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+}
+.contact-modal h2 {
+  margin: 0 34px 24px 0;
+  color: #f5f8ff;
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.12;
+}
+.contact-modal h2 span { color: #2dbdff; }
+.contact-options { display: grid; gap: 10px; }
+.contact-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 0 16px;
+  border: 1px solid rgba(105,164,210,.25);
+  background: rgba(13,31,51,.65);
+  color: #eef7ff;
+  text-decoration: none;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.contact-option span { flex: 1; font-weight: 650; font-size: 14px; }
+.contact-option:hover { transform: translateX(4px); border-color: #37bdff; background: rgba(18,61,91,.8); }
+.contact-option[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
+.whatsapp-option > svg:first-child { color: #35d982; }
+.instagram-option > svg:first-child { color: #e56bce; }
+.mail-option > svg:first-child { color: #67caff; }
+.contact-modal-note {
+  margin: 18px 0 0;
+  color: #8096ad;
+  font-size: 11px;
+  line-height: 1.5;
+}
+@media (max-width: 650px) {
+  .nav-contact-button { width: 100%; }
+  .contact-modal { padding: 30px 22px 24px; }
+}
