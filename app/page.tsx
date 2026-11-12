@@ -76,11 +76,13 @@ export default function Home() {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [cursorParticles, setCursorParticles] = useState<Array<{ id: number; x: number; y: number; size: number; duration: number; angle: number }>>([]);
+  const [cursorGlow, setCursorGlow] = useState<{ x: number; y: number } | null>(null);
   useEffect(() => {
     let previous = { x: 0, y: 0, time: 0 };
     let particleId = 0;
     let lastSpawn = 0;
     const move = (event: MouseEvent) => {
+      setCursorGlow({ x: event.clientX, y: event.clientY });
       const now = performance.now();
       const dx = event.clientX - previous.x;
       const dy = event.clientY - previous.y;
@@ -180,6 +182,7 @@ export default function Home() {
           ["--particle-y" as any]: `${Math.sin(particle.angle) * (18 + particle.size * 5)}px`
         }} />)}
       </div>
+      {cursorGlow && <div className="cursor-glow" style={{ left: cursorGlow.x, top: cursorGlow.y }} aria-hidden="true" />}
       <header className="site-header">
         <a className="brand" href="#home" onClick={closeMenu} aria-label="Raak Editz home">
           {settings.logo_url ? <img className="site-logo-image" src={settings.logo_url} alt="" /> : <span className="brand-mark">R<span>.</span></span>}
@@ -252,6 +255,16 @@ export default function Home() {
         </div>
       </section>
 
+      <footer className="site-footer section-wrap">
+        <a className="footer-brand" href="#home">{settings.brand_name}</a>
+        <div className="footer-social-links" aria-label="Contact links">
+          <a href={settings.whatsapp_number ? `https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, "")}` : "#"} target="_blank" rel="noreferrer" aria-label="WhatsApp" aria-disabled={!settings.whatsapp_number} onClick={e => { if (!settings.whatsapp_number) e.preventDefault(); }}><MessageCircle size={20} /></a>
+          <a href={settings.instagram_url || "#"} target="_blank" rel="noreferrer" aria-label="Instagram" aria-disabled={!settings.instagram_url} onClick={e => { if (!settings.instagram_url) e.preventDefault(); }}><Instagram size={20} /></a>
+          <a href={settings.contact_email ? `mailto:${settings.contact_email}` : "#"} aria-label="Email" aria-disabled={!settings.contact_email} onClick={e => { if (!settings.contact_email) e.preventDefault(); }}><Mail size={20} /></a>
+        </div>
+        <span className="footer-copyright">© {new Date().getFullYear()} {settings.brand_name}</span>
+      </footer>
+
       <AnimatePresence>
         {contactOpen && <motion.div className="contact-modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setContactOpen(false)}>
           <motion.div className="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title" initial={{ opacity: 0, y: 18, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .97 }} onClick={e => e.stopPropagation()}>
@@ -269,7 +282,6 @@ export default function Home() {
                 <Mail size={25} /><span>Email</span><ArrowUpRight size={17} />
               </a>
             </div>
-            <p className="contact-modal-note">Contact details are managed from the admin panel.</p>
           </motion.div>
         </motion.div>}
       </AnimatePresence>

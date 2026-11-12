@@ -497,3 +497,72 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
   .cursor-particle-layer { display: none !important; }
 }
+
+
+/* Soft electric-blue light that follows the pointer */
+.cursor-glow {
+  position: fixed;
+  z-index: 9998;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(35,173,255,.17) 0%, rgba(27,125,255,.08) 35%, rgba(20,95,210,0) 72%);
+  filter: blur(5px);
+  transition: left .075s linear, top .075s linear;
+  mix-blend-mode: screen;
+}
+/* Footer contact shortcuts */
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 26px;
+  padding-bottom: 28px;
+  margin-top: 36px;
+  border-top: 1px solid rgba(75,155,210,.22);
+}
+.footer-brand {
+  color: #f2f7ff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.footer-social-links a {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(105,164,210,.26);
+  background: rgba(10,25,42,.72);
+  color: #a9dfff;
+  transition: color .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.footer-social-links a:hover {
+  color: #fff;
+  border-color: #32bfff;
+  transform: translateY(-3px);
+  box-shadow: 0 0 18px rgba(38,176,255,.22);
+}
+.footer-social-links a[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
+.footer-copyright {
+  color: #71869d;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-glow { display: none !important; }
+}
+@media (max-width: 650px) {
+  .site-footer { flex-wrap: wrap; justify-content: space-between; }
+  .footer-copyright { width: 100%; order: 3; }
+}
