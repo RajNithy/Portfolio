@@ -227,3 +227,15 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
   object-fit: contain;
   flex: 0 0 auto;
 }
+
+
+/* Hero identity line above the professional role */
+.hero-name {
+  margin: 0 0 10px;
+  color: #f4f8ff;
+  font-size: clamp(15px, 1.15vw, 18px);
+  font-weight: 700;
+  letter-spacing: .16em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}

@@ -122,7 +122,10 @@ export default function Home() {
 
       <section className="hero section-wrap" id="home">
         <div className="hero-copy">
-          <motion.div className="eyebrow" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}>
+          <motion.div className="hero-name" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55 }}>
+            Raj Kumar
+          </motion.div>
+          <motion.div className="eyebrow" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6, delay: .08 }}>
             <span className="status-dot" /> {settings.hero_kicker}
           </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75, delay: .1 }}>
