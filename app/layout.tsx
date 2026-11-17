@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Raak Editz — Visuals That Make an Impact",
-  description: "Video editing, graphic design and creative visuals by Raak Editz.",
+  title: "Portfolio | Raj Kumar",
+  description: "Video editing, graphic design and creative work by Raj Kumar.",
   metadataBase: new URL("https://raak-editz.vercel.app"),
   openGraph: {
-    title: "Raak Editz — Visuals That Make an Impact",
+    title: "Portfolio | Raj Kumar",
     description: "Video editing • Graphic design • Creative direction",
     type: "website"
   }
