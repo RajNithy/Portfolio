@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowDownRight, ArrowRight, ArrowUpRight, Instagram, Mail, Menu,
+  ArrowDownRight, ArrowRight, ArrowUpRight, Instagram, Mail, Menu, Phone,
   Play, Video, Palette, Clapperboard, X, MessageCircle, Sparkles
 } from "lucide-react";
 
@@ -19,10 +19,10 @@ const defaultSettings: SiteSettings = {
   brand_name: "Portfolio", logo_url: null, hero_kicker: "INDEPENDENT CREATIVE STUDIO", hero_title_line1: "Visuals that", hero_title_line2: "make an impact.",
   hero_description: "I turn ideas into scroll-stopping videos and memorable designs. Thoughtful visuals, sharp edits, and creative work built to connect.",
   about_kicker: "A LITTLE ABOUT ME", about_title_line1: "Good design gets noticed.", about_title_line2: "Great stories stay.",
-  about_paragraph1: "This portfolio showcases video editing and graphic design work. I enjoy shaping raw ideas into polished visual stories — whether that’s a fast-paced reel, a campaign poster or a complete brand look.",
-  about_paragraph2: "This portfolio is a growing collection of selected work. Each project is an opportunity to experiment, solve a visual problem and make something people remember.",
+  about_paragraph1: "I’m Raj Kumar, a graphic designer, video editor, photographer and videographer based in Madurai. My work spans print design, digital campaigns, photography, video production and creative content.",
+  about_paragraph2: "Since 2013, I’ve worked with print, digital media, textile and education teams — building practical creative experience across design, photography, videography and video editing.",
   contact_kicker: "AVAILABLE FOR SELECT PROJECTS", contact_title_line1: "Have an idea?", contact_title_line2: "Let’s make it real.", contact_description: "Tell me what you’re working on. Let’s create something worth looking at.",
-  instagram_url: "https://www.instagram.com/raak_editz/", whatsapp_number: "", contact_email: "", service_intro: "From the first rough idea to the final export, I focus on making every frame and every detail count.",
+  instagram_url: "https://www.instagram.com/igl_raj/", whatsapp_number: "919080589580", contact_email: "rajkumar176547@gmail.com", service_intro: "From the first rough idea to the final export, I focus on making every frame and every detail count.",
   service1_title: "Video editing", service1_description: "Reels, promotional videos, cinematic edits, short-form content and motion-led storytelling.",
   service2_title: "Graphic design", service2_description: "Social media creatives, posters, thumbnails, campaign artwork and advertising layouts.",
   service3_title: "Branding & creative", service3_description: "Logo concepts, visual direction and consistent design assets for growing brands."
@@ -117,7 +117,15 @@ export default function Home() {
         const projectsRequest = supabase.from("projects").select("*").eq("published", true).order("sort_order", { ascending: true }).order("created_at", { ascending: false });
         const [settingsResult, projectsResult] = await Promise.all([settingsRequest, projectsRequest]);
         if (!active) return;
-        if (settingsResult.data) setSettings({ ...defaultSettings, ...settingsResult.data });
+        if (settingsResult.data) setSettings({
+          ...defaultSettings,
+          ...settingsResult.data,
+          instagram_url: settingsResult.data.instagram_url || defaultSettings.instagram_url,
+          whatsapp_number: settingsResult.data.whatsapp_number || defaultSettings.whatsapp_number,
+          contact_email: settingsResult.data.contact_email || defaultSettings.contact_email,
+          about_paragraph1: settingsResult.data.about_paragraph1 || defaultSettings.about_paragraph1,
+          about_paragraph2: settingsResult.data.about_paragraph2 || defaultSettings.about_paragraph2
+        });
         if (projectsResult.data) {
           setLiveProjects(projectsResult.data.map((p: any, i: number) => ({
             title: p.title,
@@ -231,6 +239,47 @@ export default function Home() {
         </motion.div>
       </section>
 
+      <section className="about-section section-wrap" id="about">
+        <div className="about-heading">
+          <p className="about-eyebrow">{settings.about_kicker || "ABOUT ME"}</p>
+          <h2>About <span>me.</span></h2>
+          <p className="about-intro">{settings.about_paragraph1}</p>
+          <p className="about-detail">{settings.about_paragraph2}</p>
+        </div>
+        <div className="experience-wrap">
+          <div className="experience-heading">
+            <p className="about-eyebrow">MY JOURNEY</p>
+            <h3>Work <span>experience</span></h3>
+          </div>
+          <div className="experience-timeline">
+            <article className="experience-item">
+              <div className="experience-date">2024 — PRESENT</div>
+              <div className="experience-content"><h4>Graphic Design Trainer</h4><p>Kalvi Institute · Madurai</p></div>
+            </article>
+            <article className="experience-item">
+              <div className="experience-date">2023 — 2024</div>
+              <div className="experience-content"><h4>Graphic Designer</h4><p>GR Formulation · Madurai</p></div>
+            </article>
+            <article className="experience-item">
+              <div className="experience-date">2021 — 2023</div>
+              <div className="experience-content"><h4>Video Editor</h4><p>Varun Jothi Tex · Madurai</p></div>
+            </article>
+            <article className="experience-item">
+              <div className="experience-date">2018 — 2021</div>
+              <div className="experience-content"><h4>Photographer, Videographer & Graphic Designer</h4><p>Raak Digital</p></div>
+            </article>
+            <article className="experience-item">
+              <div className="experience-date">2016 — 2018</div>
+              <div className="experience-content"><h4>Graphic Designer, Photographer & Videographer</h4><p>Mahi Digital · Madurai</p></div>
+            </article>
+            <article className="experience-item">
+              <div className="experience-date">2013 — 2016 · PART-TIME</div>
+              <div className="experience-content"><h4>Graphic Designer</h4><p>Ganesh Press · Batlagundu</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className="work-section section-wrap" id="work">
         <div className="gallery-groups">
           {groupedProjects.map((group, groupIndex) => (
@@ -274,6 +323,9 @@ export default function Home() {
             <div className="contact-options">
               <a className="contact-option whatsapp-option" href={settings.whatsapp_number ? `https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, "")}` : "#"} target="_blank" rel="noreferrer" aria-disabled={!settings.whatsapp_number} onClick={e => { if (!settings.whatsapp_number) e.preventDefault(); }}>
                 <MessageCircle size={25} /><span>WhatsApp</span><ArrowUpRight size={17} />
+              </a>
+              <a className="contact-option phone-option" href={settings.whatsapp_number ? `tel:+${settings.whatsapp_number.replace(/[^0-9]/g, "")}` : "#"} aria-disabled={!settings.whatsapp_number} onClick={e => { if (!settings.whatsapp_number) e.preventDefault(); }}>
+                <Phone size={25} /><span>Call · +91 90805 89580</span><ArrowUpRight size={17} />
               </a>
               <a className="contact-option instagram-option" href={settings.instagram_url || "#"} target="_blank" rel="noreferrer" aria-disabled={!settings.instagram_url} onClick={e => { if (!settings.instagram_url) e.preventDefault(); }}>
                 <Instagram size={25} /><span>Instagram</span><ArrowUpRight size={17} />
