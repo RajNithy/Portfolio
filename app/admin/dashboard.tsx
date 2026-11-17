@@ -14,10 +14,10 @@ const defaultBrand: BrandSettings = {
   brand_name: "Portfolio", logo_url: null, hero_kicker: "INDEPENDENT CREATIVE STUDIO", hero_title_line1: "Visuals that", hero_title_line2: "make an impact.",
   hero_description: "I turn ideas into scroll-stopping videos and memorable designs. Thoughtful visuals, sharp edits, and creative work built to connect.",
   about_kicker: "A LITTLE ABOUT ME", about_title_line1: "Good design gets noticed.", about_title_line2: "Great stories stay.",
-  about_paragraph1: "This portfolio showcases video editing and graphic design work. I enjoy shaping raw ideas into polished visual stories — whether that’s a fast-paced reel, a campaign poster or a complete brand look.",
-  about_paragraph2: "This portfolio is a growing collection of selected work. Each project is an opportunity to experiment, solve a visual problem and make something people remember.",
+  about_paragraph1: "I’m Raj Kumar, a graphic designer, video editor, photographer and videographer based in Madurai. My work spans print design, digital campaigns, photography, video production and creative content.",
+  about_paragraph2: "Since 2013, I’ve worked with print, digital media, textile and education teams — building practical creative experience across design, photography, videography and video editing.",
   contact_kicker: "AVAILABLE FOR SELECT PROJECTS", contact_title_line1: "Have an idea?", contact_title_line2: "Let’s make it real.", contact_description: "Tell me what you’re working on. Let’s create something worth looking at.",
-  instagram_url: "https://www.instagram.com/raak_editz/", whatsapp_number: "", contact_email: "", service_intro: "From the first rough idea to the final export, I focus on making every frame and every detail count.",
+  instagram_url: "https://www.instagram.com/igl_raj/", whatsapp_number: "919080589580", contact_email: "rajkumar176547@gmail.com", service_intro: "From the first rough idea to the final export, I focus on making every frame and every detail count.",
   service1_title: "Video editing", service1_description: "Reels, promotional videos, cinematic edits, short-form content and motion-led storytelling.",
   service2_title: "Graphic design", service2_description: "Social media creatives, posters, thumbnails, campaign artwork and advertising layouts.",
   service3_title: "Branding & creative", service3_description: "Logo concepts, visual direction and consistent design assets for growing brands."
@@ -195,7 +195,7 @@ export function AdminDashboard() {
               <label>Contact headline – first line<input value={brand.contact_title_line1} onChange={e=>updateBrand("contact_title_line1",e.target.value)} /></label>
               <label>Contact headline – second line<input value={brand.contact_title_line2} onChange={e=>updateBrand("contact_title_line2",e.target.value)} /></label>
               <label>Contact introduction<textarea rows={2} value={brand.contact_description} onChange={e=>updateBrand("contact_description",e.target.value)} /></label>
-              <label>Instagram URL<input value={brand.instagram_url} onChange={e=>updateBrand("instagram_url",e.target.value)} placeholder="https://instagram.com/yourpage" /></label>
+              <label>Instagram URL<input value={brand.instagram_url} onChange={e=>updateBrand("instagram_url",e.target.value)} placeholder="https://instagram.com/igl_raj" /></label>
               <label>WhatsApp number<input value={brand.whatsapp_number} onChange={e=>updateBrand("whatsapp_number",e.target.value)} placeholder="Country code + number, digits only" /></label>
               <label>Contact email<input type="email" value={brand.contact_email} onChange={e=>updateBrand("contact_email",e.target.value)} placeholder="you@example.com" /></label>
             </div>
