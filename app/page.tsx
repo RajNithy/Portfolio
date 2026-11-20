@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowDownRight, ArrowRight, ArrowUpRight, Instagram, Mail, Menu, Phone,
-  Play, Video, Palette, Clapperboard, X, MessageCircle, Sparkles
+  Video, Palette, Clapperboard, X, MessageCircle, Sparkles
 } from "lucide-react";
 
 type SiteSettings = {
@@ -243,6 +243,7 @@ export default function Home() {
         <div className="about-heading">
           <p className="about-eyebrow">{settings.about_kicker || "ABOUT ME"}</p>
           <h2>About <span>me.</span></h2>
+          <p className="about-role-line">S. Raj Kumar <span>|</span> Graphic Designer / Photo & Video Editor</p>
           <p className="about-intro">{settings.about_paragraph1}</p>
           <p className="about-detail">{settings.about_paragraph2}</p>
         </div>
@@ -254,27 +255,43 @@ export default function Home() {
           <div className="experience-timeline">
             <article className="experience-item">
               <div className="experience-date">2024 — PRESENT</div>
-              <div className="experience-content"><h4>Graphic Design Trainer</h4><p>Kalvi Institute · Madurai</p></div>
+              <div className="experience-content">
+                <h4>Kalvi Institute <span className="experience-location">· Madurai</span></h4>
+                <p className="experience-role">Graphic Design Trainer · Video Editor</p>
+                <ul><li>Graphic design training</li><li>Video editing</li><li>Social media ad design</li></ul>
+              </div>
             </article>
             <article className="experience-item">
-              <div className="experience-date">2023 — 2024</div>
-              <div className="experience-content"><h4>Graphic Designer</h4><p>GR Formulation · Madurai</p></div>
+              <div className="experience-date">2022 — 2024</div>
+              <div className="experience-content">
+                <h4>Varun Jothi Tex <span className="experience-location">· Madurai</span></h4>
+                <p className="experience-role">Photography & Videography</p>
+                <ul><li>Photography and videography</li><li>Video editing</li><li>Social media ad design</li></ul>
+              </div>
             </article>
             <article className="experience-item">
-              <div className="experience-date">2021 — 2023</div>
-              <div className="experience-content"><h4>Video Editor</h4><p>Varun Jothi Tex · Madurai</p></div>
-            </article>
-            <article className="experience-item">
-              <div className="experience-date">2018 — 2021</div>
-              <div className="experience-content"><h4>Photographer, Videographer & Graphic Designer</h4><p>Raak Digital</p></div>
+              <div className="experience-date">2018 — 2022</div>
+              <div className="experience-content">
+                <h4>Raak Photography <span className="experience-location">· Batlagundu</span></h4>
+                <p className="experience-role">Photography · Videography · Graphic Design</p>
+                <ul><li>Photography and videography</li><li>Album designing and video editing</li><li>Flex design, offset design and social media design</li></ul>
+              </div>
             </article>
             <article className="experience-item">
               <div className="experience-date">2016 — 2018</div>
-              <div className="experience-content"><h4>Graphic Designer, Photographer & Videographer</h4><p>Mahi Digital · Madurai</p></div>
+              <div className="experience-content">
+                <h4>Mahi Digital <span className="experience-location">· Madurai</span></h4>
+                <p className="experience-role">Photography · Videography · Graphic Design</p>
+                <ul><li>Photography and videography</li><li>Album designing and video editing</li><li>Flex design, offset design and social media ad design</li></ul>
+              </div>
             </article>
             <article className="experience-item">
-              <div className="experience-date">2013 — 2016 · PART-TIME</div>
-              <div className="experience-content"><h4>Graphic Designer</h4><p>Ganesh Press · Batlagundu</p></div>
+              <div className="experience-date">2013 — 2016</div>
+              <div className="experience-content">
+                <h4>Ganesh Press <span className="experience-location">· Batlagundu</span></h4>
+                <p className="experience-role">Part-time · Graphic Designer</p>
+                <ul><li>Invitation designing</li><li>Flex designing</li><li>Brochure designing</li></ul>
+              </div>
             </article>
           </div>
         </div>
@@ -292,7 +309,6 @@ export default function Home() {
                   <motion.button key={`${project.number}-${project.title}`} className={`gallery-card ${project.category === "Poster Design" ? "poster-card" : ""}`} onClick={() => setSelected(project)} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ duration: .45, delay: Math.min(index * .06, .24) }}>
                     <div className="gallery-media">
                       {project.video_url ? <AutoPreview src={project.video_url} poster={project.image_url} title={project.title} /> : project.image_url ? <img className="gallery-image" src={project.image_url} alt={project.title} loading="lazy" /> : <div className={`gallery-placeholder ${project.visual}`}><span>PORTFOLIO</span></div>}
-                      <span className="gallery-play"><Play size={15} fill="currentColor" /></span>
                       <span className="gallery-card-index">{project.number}</span>
                     </div>
                     <div className="gallery-card-caption"><span>{project.category}</span><strong>{project.title}</strong></div>

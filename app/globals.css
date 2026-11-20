@@ -675,3 +675,39 @@ body{background:#05070c;background-image:radial-gradient(ellipse at 78% 7%,rgba(
   .experience-wrap { grid-template-columns: 1fr; gap: 22px; }
   .experience-item { grid-template-columns: 1fr; gap: 4px; padding-bottom: 22px; }
 }
+
+
+/* Refined About identity and detailed experience list */
+.about-role-line {
+  margin: -8px 0 22px;
+  color: #55caff;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .055em;
+}
+.about-role-line span { color: #71869d; padding: 0 5px; }
+.experience-content h4 { margin-bottom: 5px; }
+.experience-location {
+  color: #8ea3b9;
+  font-size: .82em;
+  font-weight: 500;
+}
+.experience-role {
+  margin: 0 0 7px !important;
+  color: #b9d1e6 !important;
+  font-size: 11px !important;
+  font-weight: 650;
+}
+.experience-content ul {
+  margin: 0;
+  padding-left: 16px;
+  color: #8ea3b9;
+  font-size: 11px;
+  line-height: 1.75;
+}
+.experience-content li { padding-left: 2px; }
+.experience-item { padding-bottom: 30px; }
+.gallery-play { display: none !important; }
+@media (max-width: 760px) {
+  .experience-content ul { font-size: 12px; }
+}
